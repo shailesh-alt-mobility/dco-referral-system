@@ -95,6 +95,10 @@ export interface Lead {
   campaign_id: number | null;
   isActive: boolean;
   referralStatus: string;
+  rewards: {
+    deliveryPayout: number;
+    emiPayout: number;
+  };
 }
 export interface Leads {
   leads: Lead[];

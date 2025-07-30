@@ -460,7 +460,7 @@ ${link}
                         <div className="text-right">
                           {getStatusBadge(referral.referralStatus)}
                           <p className="text-sm text-muted-foreground mt-1">
-                            ₹{referral.referralStatus} earned
+                            ₹{referral?.rewards?.deliveryPayout || 0} earned
                           </p>
                         </div>
                       </div>
