@@ -8,35 +8,37 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/use-auth';
-import { useLoginMutation } from '@/lib/api';
 import { Users, Lock, Mail } from 'lucide-react';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
-  const [loginMutation, { isLoading }] = useLoginMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     try {
-      const result = await loginMutation({ email, password }).unwrap();
-      
-      // Store user data in auth context
-      await login(email, password);
-      
-      // Redirect based on user role
-      if (email === 'admin@alt-mobility.com') {
-        router.push('/admin');
+      const success = await login(email, password);
+      if (success) {
+        // Redirect based on user role
+        if (email === 'admin@alt-mobility.com') {
+          router.push('/admin');
+        } else {
+          router.push('/');
+        }
       } else {
-        router.push('/');
+        setError('Invalid email or password');
       }
-    } catch (err: any) {
-      setError(err?.data?.message || 'Invalid email or password');
+    } catch (err) {
+      setError('An error occurred during login');
+    } finally {
+      setIsLoading(false);
     }
   };
 
