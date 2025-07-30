@@ -137,7 +137,10 @@ const campaigns = [
   },
 ];
 
-const referralMessage = '🚗%20Looking%20to%20Buy%20or%20Lease%20a%20Vehicle%3F%0A%0AI%E2%80%99m%20referring%20you%20to%20a%20dealership%20that%20offers%3A%0A%E2%9C%85%20Easy%20monthly%20payments%0A%E2%9C%85%20Low%20down%20payment%20options%0A%E2%9C%85%20Quick%20approval%20%E2%80%94%20even%20with%20limited%20credit%0A%E2%9C%85%20Simple%20lease%20or%20buy%20plans%0A%0ALet%20me%20know%20if%20you%E2%80%99re%20interested%20and%20I%E2%80%99ll%20send%20you%20the%20details.%20It%E2%80%99s%20part%20of%20a%20referral%20program%2C%20so%20we%20both%20benefit%21%20%F0%9F%99%8C'
+// const referralMessage =`🚗%20Looking%20to%20Buy%20or%20Lease%20a%20Vehicle%3F%0A%0AI%E2%80%99m%20referring%20you%20to%20a%20dealership%20that%20offers%3A%0A%E2%9C%85%20Easy%20monthly%20payments%0A%E2%9C%85%20Low%20down%20payment%20options%0A%E2%9C%85%20Quick%20approval%20%E2%80%94%20even%20with%20limited%20credit%0A%E2%9C%85%20Simple%20lease%20or%20buy%20plans%0A%0ALet%20me%20know%20if%20you%E2%80%99re%20interested%20and%20I%E2%80%99ll%20send%20you%20the%20details.%20It%E2%80%99s%20part%20of%20a%20referral%20program%2C%20so%20we%20both%20benefit%21%20%F0%9F%99%8C%0Ahttp%3A%2F%2Flocalhost%3A3000%2Freferral%2F848756347876`
+
+
+
 
 
 export default function DCOReferralSystem() {
@@ -150,6 +153,24 @@ export default function DCOReferralSystem() {
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [selectedReferral, setSelectedReferral] = useState<any>(null);
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000"; // fallback for local dev
+const REFERRAL_ID = "848756347876"; // dynamically set this if needed
+
+const rawMessage = `
+Looking to buy or lease a car?
+
+I know a dealership that can help. They offer:
+- Easy monthly payments
+- Low down payment options
+- Fast approval, even with low or no credit
+- Simple plans to lease or buy
+
+Let me know if you're interested. I’ll send you the details. We both get benefits through their referral program.
+
+${BASE_URL}/referral/${REFERRAL_ID}
+`;
+
+  const referralMessage = encodeURIComponent(rawMessage);
 
   const handleShareReferral = (platform: string) => {
   switch(platform){

@@ -1,4 +1,4 @@
-import { ReferralForm } from './referral-form';
+import { ReferralForm } from '@/app/referral/[referralCode]/referral-form';
 
 interface ReferralPageProps {
   params: Promise<{
