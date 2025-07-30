@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'customer';
+  requiredRole?: 'ADMIN' | 'CUSTOMER';
   redirectTo?: string;
 }
 
@@ -30,7 +30,7 @@ export default function ProtectedRoute({
       // If role is required and user doesn't have the required role
       if (requiredRole && user?.role !== requiredRole) {
         // Redirect admin to admin page, customer to home page
-        if (user?.role === 'admin') {
+        if (user?.role === 'ADMIN') {
           router.push('/admin');
         } else {
           router.push('/');

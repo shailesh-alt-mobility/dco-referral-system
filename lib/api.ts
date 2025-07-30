@@ -113,7 +113,10 @@ export const api = createApi({
       query: (credentials) => ({
         url: '/auth/login',
         method: 'POST',
-        body: credentials,
+        body: {
+          email: credentials.email,
+          otp: credentials.password,
+        },
       }),
       invalidatesTags: ['User'],
     }),

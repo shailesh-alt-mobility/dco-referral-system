@@ -253,7 +253,7 @@ export default function DCOReferralSystem() {
   });
 
   return (
-    <ProtectedRoute requiredRole="customer">
+    <ProtectedRoute requiredRole="CUSTOMER">
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <header className="bg-white border-b border-gray-200">

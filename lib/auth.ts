@@ -14,7 +14,7 @@ export const loginUser = async (email: string, password: string): Promise<{ user
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ identifier:email,otp: password }),
     });
 
     if (!response.ok) {
