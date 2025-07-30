@@ -114,9 +114,11 @@ export default function AdminDashboard() {
   const handleMoveToCustomer = async (id: number) => {
     try {
       const response = await moveLeadToCustomer({ leadId: id, customerType: "DCO" }).unwrap();
-      const customerId = response.id
+      const customerId = response?.customer?.id
+      console.log("customerId", customerId);
 
-      getApprovedPayouts(customerId);
+      const payoutsData = await getApprovedPayouts(customerId);
+      console.log("payoutsData", payoutsData);
       
       toast({
         title: "Success!",
@@ -135,7 +137,7 @@ export default function AdminDashboard() {
   }
 
   const getApprovedPayouts = async (customerId: number) => {
-    customerPayouts({ cust_id: customerId, is3rdEmi: false });
+    await customerPayouts({ cust_id: customerId, is3rdEmi: false });
   }
 
   const getStatusBadge = (status: string) => {
