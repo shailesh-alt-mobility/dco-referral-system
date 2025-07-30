@@ -29,10 +29,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const userData = await loginUser(email, password);
-      if (userData) {
-        setUser(userData);
-        storeUser(userData);
+      const result = await loginUser(email, password);
+      if (result) {
+        setUser(result.user);
+        storeUser(result.user, result.token);
         return true;
       }
       return false;

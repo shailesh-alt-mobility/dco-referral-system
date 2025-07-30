@@ -1,32 +1,37 @@
 export interface User {
+  id: number;
   email: string;
   name: string;
-  role: 'admin' | 'customer';
+  phone: string;
+  role: 'ADMIN' | 'CUSTOMER';
+  lastLogin: string;
 }
 
-export const loginUser = async (email: string, password: string): Promise<User | null> => {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Check if it's admin login
-  if (email === 'admin@alt-mobility.com' && password === 'admin') {
+export const loginUser = async (email: string, password: string): Promise<{ user: User; token: string } | null> => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'http://34.47.217.149:3000'}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Login failed');
+    }
+
+    const data = await response.json();
+    
+    // Return both user data and token from the response
     return {
-      email: 'admin@alt-mobility.com',
-      name: 'Admin User',
-      role: 'admin'
+      user: data.user,
+      token: data.token
     };
+  } catch (error) {
+    console.error('Login error:', error);
+    return null;
   }
-  
-  // Check if it's a customer login (any email that's not admin)
-  if (email !== 'admin@alt-mobility.com' && password) {
-    return {
-      email: email,
-      name: email.split('@')[0], // Use email prefix as name
-      role: 'customer'
-    };
-  }
-  
-  return null;
 };
 
 export const logoutUser = (): void => {
@@ -52,10 +57,13 @@ export const isAuthenticated = (): boolean => {
   return localStorage.getItem('isAuthenticated') === 'true';
 };
 
-export const storeUser = (user: User): void => {
+export const storeUser = (user: User, token?: string): void => {
   if (typeof window === 'undefined') return;
   
   localStorage.setItem('user', JSON.stringify(user));
+  if (token) {
+    localStorage.setItem('token', token);
+  }
   localStorage.setItem('isAuthenticated', 'true');
   
   // Also set cookies for middleware

@@ -9,11 +9,11 @@ export function middleware(request: NextRequest) {
   const userRole = request.cookies.get('userRole')?.value
   
   // Public routes that don't require authentication
-  const publicRoutes = ['/login']
+  const publicRoutes = ['/login', '/referral']
   
   // If trying to access a public route and already authenticated, redirect appropriately
   if (publicRoutes.includes(pathname) && isAuthenticated) {
-    if (userRole === 'admin') {
+    if (userRole === 'ADMIN') {
       return NextResponse.redirect(new URL('/admin', request.url))
     } else {
       return NextResponse.redirect(new URL('/', request.url))
@@ -26,12 +26,12 @@ export function middleware(request: NextRequest) {
   }
   
   // If admin tries to access customer routes, redirect to admin
-  if (pathname === '/' && userRole === 'admin') {
+  if (pathname === '/' && userRole === 'ADMIN') {
     return NextResponse.redirect(new URL('/admin', request.url))
   }
   
   // If customer tries to access admin routes, redirect to home
-  if (pathname.startsWith('/admin') && userRole === 'customer') {
+  if (pathname.startsWith('/admin') && userRole === 'CUSTOMER') {
     return NextResponse.redirect(new URL('/', request.url))
   }
   

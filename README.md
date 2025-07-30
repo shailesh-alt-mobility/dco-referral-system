@@ -1,204 +1,92 @@
 # DCO Referral System
 
-A comprehensive referral management system for DCOs (Dealer Channel Operators) and B2C customers with authentication and role-based access control.
+Digital Referral Management for DCOs & B2C Customers
 
 ## Features
 
-- 🔐 **Authentication System**: Login with email-based role detection
-- 👥 **Role-Based Access**: Admin and Customer dashboards
-- 📊 **RTK Query Integration**: Efficient data fetching and caching
-- 🎨 **Modern UI**: Built with shadcn/ui components
-- 📱 **Responsive Design**: Works on all devices
-- 🔄 **Real-time Updates**: Automatic cache invalidation
+- **Authentication System**: Secure login for DCOs and customers
+- **Admin Dashboard**: Comprehensive admin panel for managing referrals
+- **Customer Dashboard**: User-friendly interface for customers
+- **Referral System**: Dynamic referral pages accessible without login
 
-## Tech Stack
+## Referral System
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **State Management**: Redux Toolkit, RTK Query
-- **UI Components**: shadcn/ui, Tailwind CSS
-- **HTTP Client**: Axios
-- **Authentication**: Custom JWT-based system
+The referral system allows users to create and share referral links that can be accessed by anyone without requiring authentication.
 
-## Getting Started
+### How to Use the Referral System
 
-### Prerequisites
+1. **Access Referral Page**: Navigate to `/referral/[referralCode]` where `[referralCode]` is the unique referral code
+2. **Add Optional Parameters**: You can also add `referredBy` as a query parameter
+3. **Form Submission**: Users fill out the form and submit their information
 
-- Node.js 18+ 
-- npm or pnpm
+### Example URLs
 
-### Installation
+- Basic referral: `/referral/ABC123`
+- With referredBy parameter: `/referral/ABC123?referredBy=john.doe`
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd dco-referral-system
-```
+### Form Fields
 
-2. Install dependencies:
-```bash
-npm install
-```
+The referral form includes:
+- **Name** (required): Full name of the person being referred
+- **Email** (required): Email address
+- **Phone Number** (required): Contact phone number
+- **Address** (required): Full address
+- **Referral Code** (disabled): Automatically extracted from URL
+- **Referred By** (optional, disabled): Shows if provided in URL
 
-3. Start the development server:
-```bash
-npm run dev
-```
+### API Endpoint
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Leads are submitted to `/api/leads/add` with the following data structure:
 
-## Authentication
-
-### Demo Credentials
-
-- **Admin**: `admin@alt-mobility.com` / `admin`
-- **Customer**: Any email (e.g., `customer@example.com`) / Any password
-
-### How it Works
-
-The system automatically detects user roles based on email:
-- `admin@alt-mobility.com` → Admin role → Redirects to `/admin`
-- Any other email → Customer role → Redirects to `/`
-
-## RTK Query Setup
-
-### API Structure
-
-The application uses RTK Query for efficient data fetching with the following structure:
-
-```
-lib/
-├── api.ts              # Main API slice with all endpoints
-├── axios.ts            # Axios instance with interceptors
-├── base-query.ts       # Custom base query (real/mock switching)
-├── mock-api.ts         # Mock API for development
-├── store.ts            # Redux store configuration
-└── hooks.ts            # Typed Redux hooks
-```
-
-### Available Endpoints
-
-#### Authentication
-- `POST /auth/login` - User login
-- `POST /auth/logout` - User logout
-
-#### Referrals
-- `GET /referrals` - Get all referrals
-- `GET /referrals/:id` - Get specific referral
-- `POST /referrals` - Create new referral
-- `PATCH /referrals/:id` - Update referral
-- `DELETE /referrals/:id` - Delete referral
-
-#### Campaigns
-- `GET /campaigns` - Get all campaigns
-- `POST /campaigns` - Create new campaign
-
-#### Admin Endpoints
-- `GET /admin/payouts` - Get payout queue
-- `POST /admin/payouts/:id/approve` - Approve payout
-- `POST /admin/payouts/:id/reject` - Reject payout
-- `GET /admin/fraud-alerts` - Get fraud alerts
-- `PATCH /admin/fraud-alerts/:id` - Update fraud alert
-
-#### Analytics
-- `GET /analytics/dashboard` - Get dashboard stats
-- `GET /admin/analytics` - Get admin stats
-
-### Using RTK Query Hooks
-
-```tsx
-import { useGetReferralsQuery, useCreateReferralMutation } from '@/lib/api';
-
-function MyComponent() {
-  // Query hook for fetching data
-  const { data: referrals, isLoading, error, refetch } = useGetReferralsQuery();
-  
-  // Mutation hook for creating data
-  const [createReferral, { isLoading: isCreating }] = useCreateReferralMutation();
-
-  const handleCreate = async () => {
-    try {
-      await createReferral(newReferralData).unwrap();
-      // Success handling
-    } catch (error) {
-      // Error handling
-    }
-  };
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading data</div>;
-
-  return (
-    <div>
-      {referrals?.map(referral => (
-        <div key={referral.id}>{referral.customerName}</div>
-      ))}
-    </div>
-  );
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "+1234567890",
+  "address": "123 Main St, City, State 12345",
+  "source": "referral_form",
+  "referralCode": "ABC123",
+  "campaign_id": "optional_campaign_id"
 }
 ```
 
-### Mock API vs Real API
+## Getting Started
 
-The system automatically switches between mock and real APIs:
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-- **Development** (no `NEXT_PUBLIC_API_URL`): Uses mock API
-- **Production** (with `NEXT_PUBLIC_API_URL`): Uses real API
+2. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-To use a real API, set the environment variable:
-```bash
-NEXT_PUBLIC_API_URL=http://your-api-url.com/api
-```
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Authentication
+
+- **Admin Login**: `admin@alt-mobility.com` (redirects to `/admin`)
+- **Customer Login**: Any other email (redirects to `/`)
 
 ## Project Structure
 
 ```
-├── app/                    # Next.js app directory
-│   ├── admin/             # Admin dashboard pages
-│   ├── login/             # Login page
-│   ├── layout.tsx         # Root layout with providers
-│   └── page.tsx           # Customer dashboard
-├── components/            # React components
-│   ├── ui/               # shadcn/ui components
-│   ├── login-form.tsx    # Login form
-│   ├── protected-route.tsx # Route protection
-│   └── referral-list.tsx # Example RTK Query usage
-├── hooks/                # Custom hooks
-│   └── use-auth.tsx      # Authentication hook
-├── lib/                  # Utilities and configurations
-│   ├── api.ts           # RTK Query API slice
-│   ├── auth.ts          # Authentication utilities
-│   ├── axios.ts         # Axios configuration
-│   ├── base-query.ts    # Custom base query
-│   ├── mock-api.ts      # Mock API implementation
-│   ├── store.ts         # Redux store
-│   └── hooks.ts         # Typed Redux hooks
-└── middleware.ts         # Next.js middleware for auth
+├── app/
+│   ├── admin/           # Admin dashboard
+│   ├── login/           # Login page
+│   ├── referral/        # Referral system
+│   └── api/             # API routes
+├── components/          # Reusable UI components
+├── hooks/              # Custom React hooks
+├── lib/                # Utility functions and configurations
+└── middleware.ts       # Authentication middleware
 ```
 
-## Environment Variables
+## Technologies Used
 
-Create a `.env.local` file:
-
-```env
-# Optional: Set to use real API instead of mock
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-```
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License. # dco-referral-system
+- **Next.js 14**: React framework with App Router
+- **TypeScript**: Type-safe development
+- **Tailwind CSS**: Utility-first CSS framework
+- **shadcn/ui**: Modern UI components
+- **Lucide React**: Icon library

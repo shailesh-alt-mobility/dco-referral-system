@@ -8,14 +8,16 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: 'admin' | 'customer';
-    token: string;
-  };
   message: string;
+  user: {
+    id: number;
+    name: string;
+    phone: string;
+    email: string;
+    lastLogin: string;
+    role: 'ADMIN' | 'CUSTOMER';
+  };
+  token: string;
 }
 
 export interface Referral {
@@ -78,11 +80,33 @@ export interface FraudAlert {
   status: 'Blocked' | 'Under Review' | 'Resolved';
 }
 
+export interface Lead {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  source: string;
+  referralCode: string;
+  campaign_id?: string;
+  createdDate: string;
+}
+
+export interface CreateLeadRequest {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  source: string;
+  referralCode: string;
+  campaign_id?: string;
+}
+
 // Create the API slice
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: customBaseQuery,
-  tagTypes: ['Referral', 'Campaign', 'Payout', 'FraudAlert', 'User'],
+  tagTypes: ['Referral', 'Campaign', 'Payout', 'FraudAlert', 'User', 'Lead'],
   endpoints: (builder) => ({
     // Authentication endpoints
     login: builder.mutation<LoginResponse, LoginRequest>({
@@ -214,6 +238,16 @@ export const api = createApi({
       query: () => '/admin/analytics',
       providesTags: ['Referral', 'Payout', 'FraudAlert'],
     }),
+
+    // Leads endpoints
+    createLead: builder.mutation<Lead, CreateLeadRequest>({
+      query: (lead) => ({
+        url: '/leads/add',
+        method: 'POST',
+        body: lead,
+      }),
+      invalidatesTags: ['Lead'],
+    }),
   }),
 });
 
@@ -235,4 +269,5 @@ export const {
   useUpdateFraudAlertMutation,
   useGetDashboardStatsQuery,
   useGetAdminStatsQuery,
+  useCreateLeadMutation,
 } = api; 

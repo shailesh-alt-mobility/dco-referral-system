@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/use-auth';
 import { Users, Lock, Mail } from 'lucide-react';
+import { loginUser } from '@/lib/auth';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -26,12 +27,8 @@ export default function LoginForm() {
     try {
       const success = await login(email, password);
       if (success) {
-        // Redirect based on user role
-        if (email === 'admin@alt-mobility.com') {
-          router.push('/admin');
-        } else {
-          router.push('/');
-        }
+        // Redirect based on user role - will be handled by middleware
+        router.push('/');
       } else {
         setError('Invalid email or password');
       }

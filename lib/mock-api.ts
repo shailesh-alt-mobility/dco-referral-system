@@ -1,4 +1,4 @@
-import { LoginResponse, Referral, Campaign, Payout, FraudAlert } from './api';
+import { LoginResponse, Referral, Campaign, Payout, FraudAlert, Lead, CreateLeadRequest } from './api';
 
 // Mock data
 const mockReferrals: Referral[] = [
@@ -215,5 +215,16 @@ export const mockApi = {
       conversionRate: 68.5,
       fraudPrevented: 23,
     };
+  },
+
+  // Leads
+  createLead: async (lead: CreateLeadRequest): Promise<Lead> => {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const newLead: Lead = {
+      id: `LEAD-${Date.now()}`,
+      ...lead,
+      createdDate: new Date().toISOString().split('T')[0],
+    };
+    return newLead;
   },
 }; 
