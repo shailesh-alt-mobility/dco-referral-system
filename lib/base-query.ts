@@ -9,7 +9,7 @@ export const customBaseQuery: BaseQueryFn = async (args, api, extraOptions) => {
   // Use real API for auth and leads endpoints
   if (url === '/auth/login' || url === '/leads/add') {
     return fetchBaseQuery({
-      baseUrl: process.env.NEXT_PUBLIC_API_BASE || 'http://34.47.217.149:3000',
+      baseUrl: process.env.NEXT_PUBLIC_API_BASE || 'https://34.47.217.149:3443',
       prepareHeaders: (headers, { getState }) => {
         // Get token from localStorage
         if (typeof window !== 'undefined') {
@@ -31,7 +31,7 @@ export const customBaseQuery: BaseQueryFn = async (args, api, extraOptions) => {
   
   // Use real API for other endpoints
   return fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_BASE || 'http://34.47.217.149:3000',
+    baseUrl: process.env.NEXT_PUBLIC_API_BASE || 'https://34.47.217.149:3443',
     prepareHeaders: (headers, { getState }) => {
       // Get token from localStorage
       if (typeof window !== 'undefined') {

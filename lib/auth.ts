@@ -9,7 +9,7 @@ export interface User {
 
 export const loginUser = async (email: string, password: string): Promise<{ user: User; token: string } | null> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'http://34.47.217.149:3000'}/auth/login`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'https://34.47.217.149:3443'}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
