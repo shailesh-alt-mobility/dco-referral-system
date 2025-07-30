@@ -23,8 +23,11 @@ import {
   BarChart3,
   Settings,
   Download,
+  MessageCircle,
+  Smartphone,
+  Globe,
 } from "lucide-react"
-import { useCustomerPayoutsQuery, useGetAnalyticsQuery, useGetLeadsQuery, useMoveLeadToCustomerMutation } from "@/lib/api"
+import { useCustomerPayoutsMutation, useCustomerPayoutsQuery, useGetAnalyticsQuery, useGetLeadsQuery, useMoveLeadToCustomerMutation } from "@/lib/api"
 import { toast } from "@/hooks/use-toast"
 
 
@@ -75,6 +78,29 @@ const fraudAlerts = [
   },
 ]
 
+const campaigns = [
+  {
+    id: "CAMP-001",
+    name: "New Year Vehicle Campaign",
+    description: "Special referral campaign for commercial vehicles",
+    startDate: "2024-01-01",
+    endDate: "2024-03-31",
+    status: "Active",
+    referrals: 45,
+    conversions: 23,
+  },
+  {
+    id: "CAMP-002",
+    name: "Monsoon Special Offer",
+    description: "Referral campaign for monsoon season",
+    startDate: "2024-06-01",
+    endDate: "2024-09-30",
+    status: "Scheduled",
+    referrals: 0,
+    conversions: 0,
+  },
+];
+
 export default function AdminDashboard() {
   const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
@@ -83,11 +109,7 @@ export default function AdminDashboard() {
   const { data: analyticsData, isLoading: isAnalyticsLoading } = useGetAnalyticsQuery();
 
   const [moveLeadToCustomer, { isLoading: isMoving }] = useMoveLeadToCustomerMutation();
-  const [customerId, setCustomerId] = useState<number | null>(null);
-  const { data: payoutsData, refetch: refetchPayouts } = useCustomerPayoutsQuery(
-    { cust_id: customerId || 0, is3rdEmi: false },
-    { skip: !customerId }
-  );
+  const [customerPayouts] = useCustomerPayoutsMutation();
 
   const handleMoveToCustomer = async (id: number) => {
     try {
@@ -113,8 +135,7 @@ export default function AdminDashboard() {
   }
 
   const getApprovedPayouts = async (customerId: number) => {
-    setCustomerId(customerId);
-    console.log("Customer ID set for payouts query:", customerId);
+    customerPayouts({ cust_id: customerId, is3rdEmi: false });
   }
 
   const getStatusBadge = (status: string) => {
@@ -248,11 +269,12 @@ export default function AdminDashboard() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="customers">Customers</TabsTrigger>
             <TabsTrigger value="payouts">Payouts</TabsTrigger>
             <TabsTrigger value="fraud">Fraud Detection</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -489,6 +511,91 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="campaigns" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Active Campaigns</CardTitle>
+                  <CardDescription>
+                    Manage and track referral campaigns
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {campaigns.map((campaign) => (
+                      <Card key={campaign.id}>
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-lg">
+                              {campaign.name}
+                            </CardTitle>
+                            <Badge
+                              variant={
+                                campaign.status === "Active"
+                                  ? "default"
+                                  : "secondary"
+                              }
+                            >
+                              {campaign.status}
+                            </Badge>
+                          </div>
+                          <CardDescription>
+                            {campaign.description}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Duration:</span>
+                              <span>
+                                {campaign.startDate} to {campaign.endDate}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span>Referrals:</span>
+                              <span className="font-medium">
+                                {campaign.referrals}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span>Conversions:</span>
+                              <span className="font-medium text-green-600">
+                                {campaign.conversions}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2 mt-4">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 bg-transparent"
+                            >
+                              <MessageCircle className="w-4 h-4 mr-1" />
+                              WhatsApp
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 bg-transparent"
+                            >
+                              <Smartphone className="w-4 h-4 mr-1" />
+                              Driver App
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 bg-transparent"
+                            >
+                              <Globe className="w-4 h-4 mr-1" />
+                              Meta
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

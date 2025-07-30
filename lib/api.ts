@@ -323,13 +323,13 @@ export const api = createApi({
       providesTags: ['Referral', 'Payout'],
     }),
 
-    customerPayouts: builder.query<any, CustomerPayouts>({
+    customerPayouts: builder.mutation<any, CustomerPayouts>({
       query: (data) => ({
         url: '/customers/check-emi-status',
         method: 'POST',
         body: data,
       }),
-      providesTags: ['Payout'],
+      invalidatesTags: ['Payout'],
     }),
   }),
 });
@@ -357,5 +357,5 @@ export const {
   useMoveLeadToCustomerMutation,
   useGetAnalyticsQuery,
   useGetCustomerLeadsQuery,
-  useCustomerPayoutsQuery,
+  useCustomerPayoutsMutation,
 } = api; 
