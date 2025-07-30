@@ -365,7 +365,7 @@ export default function AdminDashboard() {
                         {
                           lead.referralStatus !== "CONVERTED_TO_CUSTOMER" && (
                             <TableCell>
-                              <Button size="sm" variant="outline" onClick={() => handleMoveToCustomer(lead.id)}>Move to Customer</Button>
+                              <Button size="sm" variant="outline" onClick={() => handleMoveToCustomer(lead.id)}>Onboard Customer</Button>
                             </TableCell>
                           )
                         }
