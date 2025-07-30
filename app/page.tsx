@@ -162,7 +162,7 @@ const REFERRAL_ID = "848756347876"; // dynamically set this if needed
 const { data: referralData, isLoading: isLeadsLoading } = useGetLeadsQuery();
 
 console.log(referralData?.leads);
-const link = `https://dco-referral-system-git-feat-refer-shaileshs-projects-8df040b2.vercel.app/referral/${REFERRAL_ID}`;
+const link = `dco-referral-system.vercel.app/referral/${REFERRAL_ID}`;
 
 const rawMessage = `
 Looking to buy or lease a car?
