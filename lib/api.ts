@@ -1,0 +1,238 @@
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { customBaseQuery } from './base-query';
+
+// Define types for API responses
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: 'admin' | 'customer';
+    token: string;
+  };
+  message: string;
+}
+
+export interface Referral {
+  id: string;
+  referrerType: 'DCO' | 'B2C';
+  referrerName: string;
+  referrerId: string;
+  referralCode: string;
+  customerName: string;
+  customerPhone: string;
+  vehicleModel: string;
+  status: 'Processing' | 'Delivered' | 'EMI Complete';
+  deliveryDate: string | null;
+  emiStatus: string;
+  payout1: number;
+  payout2: number;
+  totalEarned: number;
+  createdDate: string;
+}
+
+export interface CreateReferralRequest {
+  referrerType: 'DCO' | 'B2C';
+  referrerName: string;
+  referrerId: string;
+  customerName: string;
+  customerPhone: string;
+  vehicleModel: string;
+}
+
+export interface Campaign {
+  id: string;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  status: 'Active' | 'Scheduled' | 'Completed';
+  referrals: number;
+  conversions: number;
+}
+
+export interface Payout {
+  id: string;
+  referrerId: string;
+  referrerName: string;
+  amount: number;
+  type: 'Delivery Payout' | 'EMI Completion';
+  customerId: string;
+  customerName: string;
+  dueDate: string;
+  status: 'Pending Approval' | 'Ready for Payment' | 'Paid';
+}
+
+export interface FraudAlert {
+  id: string;
+  type: string;
+  referrerId: string;
+  referrerName: string;
+  details: string;
+  timestamp: string;
+  status: 'Blocked' | 'Under Review' | 'Resolved';
+}
+
+// Create the API slice
+export const api = createApi({
+  reducerPath: 'api',
+  baseQuery: customBaseQuery,
+  tagTypes: ['Referral', 'Campaign', 'Payout', 'FraudAlert', 'User'],
+  endpoints: (builder) => ({
+    // Authentication endpoints
+    login: builder.mutation<LoginResponse, LoginRequest>({
+      query: (credentials) => ({
+        url: '/auth/login',
+        method: 'POST',
+        body: credentials,
+      }),
+      invalidatesTags: ['User'],
+    }),
+
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
+      }),
+      invalidatesTags: ['User'],
+    }),
+
+    // Referral endpoints
+    getReferrals: builder.query<Referral[], void>({
+      query: () => '/referrals',
+      providesTags: ['Referral'],
+    }),
+
+    getReferralById: builder.query<Referral, string>({
+      query: (id) => `/referrals/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Referral', id }],
+    }),
+
+    createReferral: builder.mutation<Referral, CreateReferralRequest>({
+      query: (referral) => ({
+        url: '/referrals',
+        method: 'POST',
+        body: referral,
+      }),
+      invalidatesTags: ['Referral'],
+    }),
+
+    updateReferral: builder.mutation<Referral, { id: string; updates: Partial<Referral> }>({
+      query: ({ id, updates }) => ({
+        url: `/referrals/${id}`,
+        method: 'PATCH',
+        body: updates,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Referral', id }],
+    }),
+
+    deleteReferral: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/referrals/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Referral'],
+    }),
+
+    // Campaign endpoints
+    getCampaigns: builder.query<Campaign[], void>({
+      query: () => '/campaigns',
+      providesTags: ['Campaign'],
+    }),
+
+    createCampaign: builder.mutation<Campaign, Omit<Campaign, 'id'>>({
+      query: (campaign) => ({
+        url: '/campaigns',
+        method: 'POST',
+        body: campaign,
+      }),
+      invalidatesTags: ['Campaign'],
+    }),
+
+    // Admin endpoints
+    getPayouts: builder.query<Payout[], void>({
+      query: () => '/admin/payouts',
+      providesTags: ['Payout'],
+    }),
+
+    approvePayout: builder.mutation<Payout, string>({
+      query: (id) => ({
+        url: `/admin/payouts/${id}/approve`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Payout'],
+    }),
+
+    rejectPayout: builder.mutation<Payout, string>({
+      query: (id) => ({
+        url: `/admin/payouts/${id}/reject`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Payout'],
+    }),
+
+    getFraudAlerts: builder.query<FraudAlert[], void>({
+      query: () => '/admin/fraud-alerts',
+      providesTags: ['FraudAlert'],
+    }),
+
+    updateFraudAlert: builder.mutation<FraudAlert, { id: string; status: string }>({
+      query: ({ id, status }) => ({
+        url: `/admin/fraud-alerts/${id}`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'FraudAlert', id }],
+    }),
+
+    // Analytics endpoints
+    getDashboardStats: builder.query<{
+      totalReferrals: number;
+      activeReferrals: number;
+      totalEarnings: number;
+      pendingPayouts: number;
+      conversionRate: number;
+      avgEarningsPerReferral: number;
+    }, void>({
+      query: () => '/analytics/dashboard',
+      providesTags: ['Referral', 'Payout'],
+    }),
+
+    getAdminStats: builder.query<{
+      totalReferrers: number;
+      activeReferrals: number;
+      totalPayouts: number;
+      pendingPayouts: number;
+      conversionRate: number;
+      fraudPrevented: number;
+    }, void>({
+      query: () => '/admin/analytics',
+      providesTags: ['Referral', 'Payout', 'FraudAlert'],
+    }),
+  }),
+});
+
+// Export hooks for use in components
+export const {
+  useLoginMutation,
+  useLogoutMutation,
+  useGetReferralsQuery,
+  useGetReferralByIdQuery,
+  useCreateReferralMutation,
+  useUpdateReferralMutation,
+  useDeleteReferralMutation,
+  useGetCampaignsQuery,
+  useCreateCampaignMutation,
+  useGetPayoutsQuery,
+  useApprovePayoutMutation,
+  useRejectPayoutMutation,
+  useGetFraudAlertsQuery,
+  useUpdateFraudAlertMutation,
+  useGetDashboardStatsQuery,
+  useGetAdminStatsQuery,
+} = api; 
