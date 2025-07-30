@@ -107,14 +107,6 @@ export default function LoginForm() {
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
             </form>
-
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Demo Credentials:</h4>
-              <div className="text-xs text-gray-600 space-y-1">
-                <p><strong>Admin:</strong> admin@alt-mobility.com / admin</p>
-                <p><strong>Customer:</strong> customer@example.com / any-password</p>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
