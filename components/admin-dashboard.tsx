@@ -24,18 +24,10 @@ import {
   Settings,
   Download,
 } from "lucide-react"
-import { useGetAnalyticsQuery, useGetLeadsQuery, useMoveLeadToCustomerMutation } from "@/lib/api"
+import { useCustomerPayoutsQuery, useGetAnalyticsQuery, useGetLeadsQuery, useMoveLeadToCustomerMutation } from "@/lib/api"
 import { toast } from "@/hooks/use-toast"
 
-// Mock admin data
-const adminStats = {
-  totalReferrers: 1247,
-  activeReferrals: 3456,
-  totalPayouts: 2847500,
-  pendingPayouts: 125000,
-  conversionRate: 68.5,
-  fraudPrevented: 23,
-}
+
 
 const payoutQueue = [
   {
@@ -86,21 +78,23 @@ const fraudAlerts = [
 export default function AdminDashboard() {
   const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
 
   const { data: customers, isLoading: isLeadsLoading } = useGetLeadsQuery();
   const { data: analyticsData, isLoading: isAnalyticsLoading } = useGetAnalyticsQuery();
 
-  console.log("analytics",analyticsData);
-
   const [moveLeadToCustomer, { isLoading: isMoving }] = useMoveLeadToCustomerMutation();
+  const [customerId, setCustomerId] = useState<number | null>(null);
+  const { data: payoutsData, refetch: refetchPayouts } = useCustomerPayoutsQuery(
+    { cust_id: customerId || 0, is3rdEmi: false },
+    { skip: !customerId }
+  );
 
   const handleMoveToCustomer = async (id: number) => {
     try {
-      console.log("id", id);
       const response = await moveLeadToCustomer({ leadId: id, customerType: "DCO" }).unwrap();
-      console.log("response", response);
+      const customerId = response.id
+
+      getApprovedPayouts(customerId);
       
       toast({
         title: "Success!",
@@ -116,6 +110,11 @@ export default function AdminDashboard() {
         variant: "destructive",
       });
     }
+  }
+
+  const getApprovedPayouts = async (customerId: number) => {
+    setCustomerId(customerId);
+    console.log("Customer ID set for payouts query:", customerId);
   }
 
   const getStatusBadge = (status: string) => {

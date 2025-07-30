@@ -101,6 +101,12 @@ export interface Lead {
   };
 }
 export interface Leads {
+  leads: Lead[];
+  total: number;
+  page: number;
+  limit: number;
+}
+export interface CustomerLeads {
   customers: Lead[];
   total: number;
   page: number;
@@ -115,6 +121,31 @@ export interface CreateLeadRequest {
   source: string;
   referralCode: string;
   campaign_id?: string;
+}
+
+export interface CustomerPayouts {
+  cust_id: number;
+  is3rdEmi?: boolean;
+}
+
+export interface ICustomerLeads {
+  id: number;
+  authId: number;
+  leadId: number;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  customer_type: string;
+  created_by: number;
+  created_at: string;
+  updated_by: number | null;
+  updated_at: string | null;
+  referred_by: number | null;
+  refer_code: string;
+  first_payout: boolean;
+  second_payout: boolean;
+  campaign_id: number | null;
 }
 
 // Create the API slice
@@ -270,12 +301,12 @@ export const api = createApi({
       query: () => '/leads/all',
       providesTags: ['Lead'],
     }),
-    getCustomerLeads: builder.query<Leads, void>({
+    getCustomerLeads: builder.query<CustomerLeads, void>({
       query: () => '/customers/all-reffrals',
       providesTags: ['Lead'],
     }),
 
-    moveLeadToCustomer: builder.mutation<void, {leadId: number, customerType: string}>({
+    moveLeadToCustomer: builder.mutation<ICustomerLeads, {leadId: number, customerType: string}>({
       query: (data) => ({
         url: `/leads/move-to-customer`,
         method: 'POST',
@@ -290,6 +321,15 @@ export const api = createApi({
     getAnalytics: builder.query<any, void>({
       query: () => '/referral/analytics',
       providesTags: ['Referral', 'Payout'],
+    }),
+
+    customerPayouts: builder.query<any, CustomerPayouts>({
+      query: (data) => ({
+        url: '/customers/check-emi-status',
+        method: 'POST',
+        body: data,
+      }),
+      providesTags: ['Payout'],
     }),
   }),
 });
@@ -317,4 +357,5 @@ export const {
   useMoveLeadToCustomerMutation,
   useGetAnalyticsQuery,
   useGetCustomerLeadsQuery,
+  useCustomerPayoutsQuery,
 } = api; 
