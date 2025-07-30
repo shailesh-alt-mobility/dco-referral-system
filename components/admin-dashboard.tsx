@@ -24,7 +24,7 @@ import {
   Settings,
   Download,
 } from "lucide-react"
-import { useGetLeadsQuery, useMoveLeadToCustomerMutation } from "@/lib/api"
+import { useGetAnalyticsQuery, useGetLeadsQuery, useMoveLeadToCustomerMutation } from "@/lib/api"
 import { toast } from "@/hooks/use-toast"
 
 // Mock admin data
@@ -90,8 +90,9 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState("all")
 
   const { data: customers, isLoading: isLeadsLoading } = useGetLeadsQuery();
+  const { data: analyticsData, isLoading: isAnalyticsLoading } = useGetAnalyticsQuery();
 
-  console.log("leads",customers);
+  console.log("analytics",analyticsData);
 
   const [moveLeadToCustomer, { isLoading: isMoving }] = useMoveLeadToCustomerMutation();
 
@@ -179,10 +180,10 @@ export default function AdminDashboard() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{adminStats.totalReferrers.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{analyticsData?.analytics?.totalReferrals.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
                 <TrendingUp className="w-3 h-3 inline mr-1" />
-                +8% from last month
+                +{analyticsData?.analytics?.totalReferralsChange}% from last month
               </p>
             </CardContent>
           </Card>
@@ -193,7 +194,7 @@ export default function AdminDashboard() {
               <Activity className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{adminStats.activeReferrals.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-blue-600">{analyticsData?.analytics?.activeReferrals.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">Currently processing</p>
             </CardContent>
           </Card>
@@ -204,8 +205,18 @@ export default function AdminDashboard() {
               <IndianRupee className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">₹{(adminStats.totalPayouts / 100000).toFixed(1)}L</div>
+              <div className="text-2xl font-bold text-green-600">₹{(analyticsData?.analytics?.totalEarnings / 100000).toFixed(1)}L</div>
               <p className="text-xs text-muted-foreground">Lifetime payouts</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Avg Earnings Per Lead</CardTitle>
+              <Shield className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{analyticsData?.analytics?.avgEarningsPerLead}</div>
+              <p className="text-xs text-muted-foreground">This month</p>
             </CardContent>
           </Card>
 
@@ -216,7 +227,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">
-                ₹{(adminStats.pendingPayouts / 1000).toFixed(0)}K
+                ₹{(analyticsData?.analytics?.pendingPayouts / 1000).toFixed(0)}K
               </div>
               <p className="text-xs text-muted-foreground">Awaiting approval</p>
             </CardContent>
@@ -228,21 +239,12 @@ export default function AdminDashboard() {
               <BarChart3 className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{adminStats.conversionRate}%</div>
+              <div className="text-2xl font-bold text-purple-600">{analyticsData?.analytics?.conversionRate}%</div>
               <p className="text-xs text-muted-foreground">System average</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Fraud Prevented</CardTitle>
-              <Shield className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{adminStats.fraudPrevented}</div>
-              <p className="text-xs text-muted-foreground">This month</p>
-            </CardContent>
-          </Card>
+        
         </div>
 
         {/* Admin Tabs */}

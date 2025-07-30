@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import ProtectedRoute from "@/components/protected-route";
 import { Badge } from "@/components/ui/badge";
@@ -58,7 +58,11 @@ import {
   QrCode,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useGetLeadsQuery } from "@/lib/api";
+import {
+  useGetAnalyticsQuery,
+  useGetCustomerLeadsQuery,
+  useGetLeadsQuery,
+} from "@/lib/api";
 
 // Mock data
 // const referralData?.leads = [
@@ -138,11 +142,6 @@ const campaigns = [
   },
 ];
 
-// const referralMessage =`🚗%20Looking%20to%20Buy%20or%20Lease%20a%20Vehicle%3F%0A%0AI%E2%80%99m%20referring%20you%20to%20a%20dealership%20that%20offers%3A%0A%E2%9C%85%20Easy%20monthly%20payments%0A%E2%9C%85%20Low%20down%20payment%20options%0A%E2%9C%85%20Quick%20approval%20%E2%80%94%20even%20with%20limited%20credit%0A%E2%9C%85%20Simple%20lease%20or%20buy%20plans%0A%0ALet%20me%20know%20if%20you%E2%80%99re%20interested%20and%20I%E2%80%99ll%20send%20you%20the%20details.%20It%E2%80%99s%20part%20of%20a%20referral%20program%2C%20so%20we%20both%20benefit%21%20%F0%9F%99%8C%0Ahttp%3A%2F%2Flocalhost%3A3000%2Freferral%2F848756347876`
-
-
-
-
 
 export default function DCOReferralSystem() {
   const { user, logout } = useAuth();
@@ -155,16 +154,23 @@ export default function DCOReferralSystem() {
   const [selectedReferral, setSelectedReferral] = useState<any>(null);
   const [customReminderMessage, setCustomReminderMessage] = useState("");
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000"; // fallback for local dev
-const REFERRAL_ID = "848756347876"; // dynamically set this if needed
+  const [REFERRAL_ID, setREFERRAL_ID] = useState("");
 
+useEffect(()=>{
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  setREFERRAL_ID(userData?.Customer?.refer_code);
+},[]);
 
-const { data: referralData, isLoading: isLeadsLoading } = useGetLeadsQuery();
+  const { data: referralData, isLoading: isLeadsLoading } =
+    useGetCustomerLeadsQuery();
 
-console.log(referralData?.leads);
-const link = `https://dco-referral-system.vercel.app/referral/${REFERRAL_ID}`;
+  console.log("customer leads", referralData);
+  const { data: analyticsData, isLoading: isAnalyticsLoading } =
+    useGetAnalyticsQuery();
 
-const rawMessage = `
+  const link = `https://dco-referral-system.vercel.app/referral/${REFERRAL_ID}`;
+
+  const rawMessage = `
 Looking to buy or lease a car?
 
 I know a dealership that can help. They offer:
@@ -181,21 +187,28 @@ ${link}
   const referralMessage = encodeURIComponent(rawMessage);
 
   const handleShareReferral = (platform: string) => {
-  switch(platform){
-    case 'whatsapp':
-      window.open(`https://wa.me/?text=${referralMessage}`, '_blank');
-      break;
-    case 'meta':
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${referralMessage}`, '_blank');
-  }
+    switch (platform) {
+      case "whatsapp":
+        window.open(`https://wa.me/?text=${referralMessage}`, "_blank");
+        break;
+      case "meta":
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${referralMessage}`,
+          "_blank"
+        );
+    }
   };
 
   const stats = {
-    totalReferrals: referralData?.leads?.length,
-    activeReferrals: referralData?.leads?.filter((r) => r.referralStatus !== "EMI Complete")
-      .length,
-    totalEarnings: referralData?.leads?.reduce((sum, r) => sum + Number(r.referralStatus), 0),
-    pendingPayouts: referralData?.leads?.filter(
+    totalReferrals: referralData?.customers?.length,
+    activeReferrals: referralData?.customers?.filter(
+      (r) => r.referralStatus !== "EMI Complete"
+    ).length,
+    totalEarnings: referralData?.customers?.reduce(
+      (sum, r) => sum + Number(r.referralStatus),
+      0
+    ),
+    pendingPayouts: referralData?.customers?.filter(
       (r) => r.referralStatus === "EMI Complete"
     ).length,
     conversionRate: 76.5,
@@ -208,7 +221,7 @@ ${link}
         return (
           <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
             <CheckCircle2 className="w-3 h-3 mr-1" />
-           Successfully
+            Successfully
           </Badge>
         );
       case "INPROGRESS":
@@ -242,7 +255,11 @@ ${link}
     });
   };
 
-  const shareReferral = (platform: string, referralCode: string, messageData: string) => {
+  const shareReferral = (
+    platform: string,
+    referralCode: string,
+    messageData: string
+  ) => {
     const message = `${messageData} ! Use my referral code: ${referralCode} or click: ${link}`;
 
     switch (platform) {
@@ -266,15 +283,14 @@ ${link}
     }
   };
 
-  const filteredReferrals = referralData?.leads?.filter((referral) => {
+  const filteredReferrals = referralData?.customers?.filter((referral) => {
     const matchesSearch =
       referral.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       referral.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
       referral.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || referral.referralStatus === statusFilter;
-    const matchesType =
-      typeFilter === "all" || referral.source === typeFilter;
+    const matchesType = typeFilter === "all" || referral.source === typeFilter;
 
     return matchesSearch && matchesStatus && matchesType;
   });
@@ -324,11 +340,9 @@ ${link}
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalReferrals}</div>
-                <p className="text-xs text-muted-foreground">
-                  <TrendingUp className="w-3 h-3 inline mr-1" />
-                  +12% from last month
-                </p>
+                <div className="text-2xl font-bold">
+                  {analyticsData?.analytics?.totalReferrals}
+                </div>
               </CardContent>
             </Card>
 
@@ -341,7 +355,7 @@ ${link}
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-blue-600">
-                  {stats.activeReferrals}
+                  {analyticsData?.analytics?.activeReferrals}
                 </div>
                 <p className="text-xs text-muted-foreground">In progress</p>
               </CardContent>
@@ -356,7 +370,7 @@ ${link}
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">
-                  ₹{stats.totalEarnings?.toLocaleString()}
+                  ₹{analyticsData?.analytics?.totalEarnings?.toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Lifetime earnings
@@ -373,7 +387,7 @@ ${link}
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-yellow-600">
-                  {stats.pendingPayouts}
+                  {analyticsData?.analytics?.pendingPayouts}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Awaiting EMI completion
@@ -390,7 +404,7 @@ ${link}
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-purple-600">
-                  {stats.conversionRate}%
+                  {analyticsData?.analytics?.conversionRate}%
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Referral to sale
@@ -407,7 +421,7 @@ ${link}
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-orange-600">
-                  ₹{stats.avgEarningsPerReferral}
+                  ₹{analyticsData?.analytics?.avgEarningsPerLead}
                 </div>
                 <p className="text-xs text-muted-foreground">Per referral</p>
               </CardContent>
@@ -438,7 +452,7 @@ ${link}
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {referralData?.leads?.slice(0, 3).map((referral) => (
+                    {referralData?.customers?.slice(0, 3).map((referral) => (
                       <div
                         key={referral.id}
                         className="flex items-center justify-between p-4 border rounded-lg"
@@ -448,13 +462,7 @@ ${link}
                             <Users className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <p className="font-medium">
-                              {referral.name}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              Referred by {referral.source} •{" "}
-                              {referral.source}
-                            </p>
+                            <p className="font-medium">{referral.name}</p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -544,12 +552,9 @@ ${link}
                     <TableBody>
                       {filteredReferrals?.map((referral) => (
                         <TableRow key={referral.id}>
-                         
                           <TableCell>
                             <div>
-                              <p className="font-medium">
-                                {referral.name}
-                              </p>
+                              <p className="font-medium">{referral.name}</p>
                               <p className="text-sm text-muted-foreground">
                                 {referral.phone}
                               </p>
@@ -558,18 +563,21 @@ ${link}
                           <TableCell>
                             {getStatusBadge(referral.referralStatus)}
                           </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedReferral(referral);
-                                setShowShareDialog(true);
-                              }}
-                            >
-                              <Share2 className="w-4 h-4" />
-                            </Button>
-                          </TableCell>
+                          {referral.referralStatus ===
+                            "CONVERTED_TO_CUSTOMER" && (
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedReferral(referral);
+                                  setShowShareDialog(true);
+                                }}
+                              >
+                                <Share2 className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -771,7 +779,7 @@ ${link}
                 size="sm"
                 variant="outline"
                 className="flex-1 bg-transparent"
-                onClick={() => handleShareReferral('whatsapp')}
+                onClick={() => handleShareReferral("whatsapp")}
               >
                 <MessageCircle className="w-4 h-4 mr-1" />
                 WhatsApp
@@ -780,7 +788,7 @@ ${link}
                 size="sm"
                 variant="outline"
                 className="flex-1 bg-transparent"
-                onClick={() => handleShareReferral('driver-app')}
+                onClick={() => handleShareReferral("driver-app")}
                 disabled={true}
               >
                 <Smartphone className="w-4 h-4 mr-1" />
@@ -790,7 +798,7 @@ ${link}
                 size="sm"
                 variant="outline"
                 className="flex-1 bg-transparent"
-                onClick={() => handleShareReferral('meta')}
+                onClick={() => handleShareReferral("meta")}
               >
                 <Globe className="w-4 h-4 mr-1" />
                 Meta
@@ -813,20 +821,19 @@ ${link}
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                     
                       <div className="mt-3">
-                      
                         <textarea
                           className="w-full border rounded px-2 py-1 text-sm"
                           placeholder="Type your custom message to remind the referee"
                           rows={6}
                           cols={30}
                           value={customReminderMessage}
-                          onChange={e => setCustomReminderMessage(e.target.value)}
+                          onChange={(e) =>
+                            setCustomReminderMessage(e.target.value)
+                          }
                         />
                       </div>
                     </div>
-                
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
@@ -834,7 +841,11 @@ ${link}
                     variant="outline"
                     className="flex flex-col items-center p-4 h-auto bg-transparent"
                     onClick={() =>
-                      shareReferral("whatsapp", REFERRAL_ID, customReminderMessage)
+                      shareReferral(
+                        "whatsapp",
+                        REFERRAL_ID,
+                        customReminderMessage
+                      )
                     }
                   >
                     <MessageCircle className="w-6 h-6 mb-2 text-green-600" />
@@ -844,7 +855,11 @@ ${link}
                     variant="outline"
                     className="flex flex-col items-center p-4 h-auto bg-transparent"
                     onClick={() =>
-                      shareReferral("driver-app", REFERRAL_ID, customReminderMessage)
+                      shareReferral(
+                        "driver-app",
+                        REFERRAL_ID,
+                        customReminderMessage
+                      )
                     }
                   >
                     <Smartphone className="w-6 h-6 mb-2 text-blue-600" />

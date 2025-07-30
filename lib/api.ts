@@ -101,7 +101,7 @@ export interface Lead {
   };
 }
 export interface Leads {
-  leads: Lead[];
+  customers: Lead[];
   total: number;
   page: number;
   limit: number;
@@ -270,6 +270,10 @@ export const api = createApi({
       query: () => '/leads/all',
       providesTags: ['Lead'],
     }),
+    getCustomerLeads: builder.query<Leads, void>({
+      query: () => '/customers/all-reffrals',
+      providesTags: ['Lead'],
+    }),
 
     moveLeadToCustomer: builder.mutation<void, {leadId: number, customerType: string}>({
       query: (data) => ({
@@ -281,6 +285,11 @@ export const api = createApi({
         }
       }),
       invalidatesTags: ['Lead'],
+    }),
+
+    getAnalytics: builder.query<any, void>({
+      query: () => '/referral/analytics',
+      providesTags: ['Referral', 'Payout'],
     }),
   }),
 });
@@ -306,4 +315,6 @@ export const {
   useCreateLeadMutation,
   useGetLeadsQuery,
   useMoveLeadToCustomerMutation,
+  useGetAnalyticsQuery,
+  useGetCustomerLeadsQuery,
 } = api; 

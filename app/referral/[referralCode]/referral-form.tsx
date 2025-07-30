@@ -15,6 +15,13 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { User, Mail, Phone, Hash, MapPin } from "lucide-react";
 import { useCreateLeadMutation } from "@/lib/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ReferralFormProps {
   referralCode: string;
@@ -25,6 +32,7 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
+  const [source, setSource] = useState("");
   const [referralCodeState, setReferralCode] = useState("");
   const [referredBy, setReferredBy] = useState("");
   const [error, setError] = useState("");
@@ -54,7 +62,7 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
         email,
         phone: phoneNumber,
         address,
-        source: "referral_form",
+        source: source || "other",
         referralCode: referralCodeState,
         campaign_id: referredBy || undefined,
       };
@@ -66,6 +74,7 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
       setEmail("");
       setPhoneNumber("");
       setAddress("");
+      setSource("");
     } catch (err: any) {
       setError(
         err?.data?.error || "An error occurred while submitting the form"
@@ -91,7 +100,6 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
         <Card>
           {!success && (
             <CardHeader>
-              <CardTitle>Referral Form</CardTitle>
               <CardDescription>
                 Please fill in your details to complete the referral process
               </CardDescription>
@@ -174,6 +182,21 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
                       required
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="source">How did you hear about us?</Label>
+                  <Select value={source} onValueChange={setSource}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select source" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                      <SelectItem value="facebook">Facebook</SelectItem>
+                      <SelectItem value="driver_app">Driver App</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
