@@ -162,7 +162,7 @@ const REFERRAL_ID = "848756347876"; // dynamically set this if needed
 const { data: referralData, isLoading: isLeadsLoading } = useGetLeadsQuery();
 
 console.log(referralData?.leads);
-const link = `dco-referral-system.vercel.app/referral/${REFERRAL_ID}`;
+const link = `https://dco-referral-system.vercel.app/referral/${REFERRAL_ID}`;
 
 const rawMessage = `
 Looking to buy or lease a car?
@@ -243,8 +243,7 @@ ${link}
   };
 
   const shareReferral = (platform: string, referralCode: string, messageData: string) => {
-    const referralLink = `${BASE_URL}/referral/${referralCode}`;
-    const message = `${messageData} ! Use my referral code: ${referralCode} or click: ${referralLink}`;
+    const message = `${messageData} ! Use my referral code: ${referralCode} or click: ${link}`;
 
     switch (platform) {
       case "whatsapp":
@@ -253,7 +252,7 @@ ${link}
       case "meta":
         window.open(
           `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-            referralLink
+            link
           )}`
         );
         break;

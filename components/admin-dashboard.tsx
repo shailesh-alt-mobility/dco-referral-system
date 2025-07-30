@@ -24,6 +24,8 @@ import {
   Settings,
   Download,
 } from "lucide-react"
+import { useGetLeadsQuery, useMoveLeadToCustomerMutation } from "@/lib/api"
+import { toast } from "@/hooks/use-toast"
 
 // Mock admin data
 const adminStats = {
@@ -86,6 +88,34 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview")
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+
+  const { data: customers, isLoading: isLeadsLoading } = useGetLeadsQuery();
+
+  console.log("leads",customers);
+
+  const [moveLeadToCustomer, { isLoading: isMoving }] = useMoveLeadToCustomerMutation();
+
+  const handleMoveToCustomer = async (id: number) => {
+    try {
+      console.log("id", id);
+      const response = await moveLeadToCustomer({ leadId: id, customerType: "DCO" }).unwrap();
+      console.log("response", response);
+      
+      toast({
+        title: "Success!",
+        description: "Lead successfully moved to customer status.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Failed to move lead to customer:", error);
+      
+      toast({
+        title: "Error",
+        description: "Failed to move lead to customer. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -217,8 +247,9 @@ export default function AdminDashboard() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="customers">Customers</TabsTrigger>
             <TabsTrigger value="payouts">Payouts</TabsTrigger>
             <TabsTrigger value="fraud">Fraud Detection</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -305,6 +336,47 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
+          <TabsContent value="customers" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Customers</CardTitle>  
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Customer ID</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {customers?.leads?.map((lead) => (
+                      <TableRow key={lead.id}>
+                        <TableCell>{lead.id}</TableCell>
+                        <TableCell>{lead.name}</TableCell>
+                        <TableCell>{lead.phone}</TableCell>
+                        <TableCell>{lead.email}</TableCell>
+                        <TableCell>{lead.referralStatus === "CONVERTED_TO_CUSTOMER" ? "Customer Onboarded" : "Lead"}</TableCell>
+                        {
+                          lead.referralStatus !== "CONVERTED_TO_CUSTOMER" && (
+                            <TableCell>
+                              <Button size="sm" variant="outline" onClick={() => handleMoveToCustomer(lead.id)}>Move to Customer</Button>
+                            </TableCell>
+                          )
+                        }
+                        
+                      </TableRow>
+                    ))}
+
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
           <TabsContent value="payouts" className="space-y-6">
             <Card>
               <CardHeader>

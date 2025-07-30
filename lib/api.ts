@@ -266,6 +266,18 @@ export const api = createApi({
       query: () => '/leads/all',
       providesTags: ['Lead'],
     }),
+
+    moveLeadToCustomer: builder.mutation<void, {leadId: number, customerType: string}>({
+      query: (data) => ({
+        url: `/leads/move-to-customer`,
+        method: 'POST',
+        body: {
+          "leadId": data.leadId,
+          "customerType": data.customerType
+        }
+      }),
+      invalidatesTags: ['Lead'],
+    }),
   }),
 });
 
@@ -289,4 +301,5 @@ export const {
   useGetAdminStatsQuery,
   useCreateLeadMutation,
   useGetLeadsQuery,
+  useMoveLeadToCustomerMutation,
 } = api; 
