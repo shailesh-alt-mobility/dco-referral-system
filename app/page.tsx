@@ -58,61 +58,62 @@ import {
   QrCode,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useGetLeadsQuery } from "@/lib/api";
 
 // Mock data
-const referralData = [
-  {
-    id: "REF-DCO-001",
-    referrerType: "DCO",
-    referrerName: "Rajesh Kumar",
-    referrerId: "DCO-MH-001",
-    referralCode: "RAJESH-MH-001",
-    customerName: "Amit Sharma",
-    customerPhone: "+91-9876543210",
-    vehicleModel: "Tata Ace Gold",
-    status: "Delivered",
-    deliveryDate: "2024-01-15",
-    emiStatus: "2/3 Paid",
-    payout1: 5000,
-    payout2: 0,
-    totalEarned: 5000,
-    createdDate: "2024-01-10",
-  },
-  {
-    id: "REF-B2C-002",
-    referrerType: "B2C",
-    referrerName: "Priya Patel",
-    referrerId: "B2C-GJ-002",
-    referralCode: "PRIYA-GJ-002",
-    customerName: "Suresh Modi",
-    customerPhone: "+91-9876543211",
-    vehicleModel: "Mahindra Bolero Pickup",
-    status: "EMI Complete",
-    deliveryDate: "2023-12-20",
-    emiStatus: "3/3 Paid",
-    payout1: 5000,
-    payout2: 2500,
-    totalEarned: 7500,
-    createdDate: "2023-12-15",
-  },
-  {
-    id: "REF-DCO-003",
-    referrerType: "DCO",
-    referrerName: "Vikram Singh",
-    referrerId: "DCO-UP-003",
-    referralCode: "VIKRAM-UP-003",
-    customerName: "Rahul Gupta",
-    customerPhone: "+91-9876543212",
-    vehicleModel: "Ashok Leyland Dost",
-    status: "Processing",
-    deliveryDate: null,
-    emiStatus: "Pending",
-    payout1: 0,
-    payout2: 0,
-    totalEarned: 0,
-    createdDate: "2024-01-20",
-  },
-];
+// const referralData?.leads = [
+//   {
+//     id: "REF-DCO-001",
+//     referrerType: "DCO",
+//     referrerName: "Rajesh Kumar",
+//     referrerId: "DCO-MH-001",
+//     referralCode: "RAJESH-MH-001",
+//     customerName: "Amit Sharma",
+//     customerPhone: "+91-9876543210",
+//     vehicleModel: "Tata Ace Gold",
+//     status: "Delivered",
+//     deliveryDate: "2024-01-15",
+//     emiStatus: "2/3 Paid",
+//     payout1: 5000,
+//     payout2: 0,
+//     totalEarned: 5000,
+//     createdDate: "2024-01-10",
+//   },
+//   {
+//     id: "REF-B2C-002",
+//     referrerType: "B2C",
+//     referrerName: "Priya Patel",
+//     referrerId: "B2C-GJ-002",
+//     referralCode: "PRIYA-GJ-002",
+//     customerName: "Suresh Modi",
+//     customerPhone: "+91-9876543211",
+//     vehicleModel: "Mahindra Bolero Pickup",
+//     status: "EMI Complete",
+//     deliveryDate: "2023-12-20",
+//     emiStatus: "3/3 Paid",
+//     payout1: 5000,
+//     payout2: 2500,
+//     totalEarned: 7500,
+//     createdDate: "2023-12-15",
+//   },
+//   {
+//     id: "REF-DCO-003",
+//     referrerType: "DCO",
+//     referrerName: "Vikram Singh",
+//     referrerId: "DCO-UP-003",
+//     referralCode: "VIKRAM-UP-003",
+//     customerName: "Rahul Gupta",
+//     customerPhone: "+91-9876543212",
+//     vehicleModel: "Ashok Leyland Dost",
+//     status: "Processing",
+//     deliveryDate: null,
+//     emiStatus: "Pending",
+//     payout1: 0,
+//     payout2: 0,
+//     totalEarned: 0,
+//     createdDate: "2024-01-20",
+//   },
+// ];
 
 const campaigns = [
   {
@@ -152,9 +153,16 @@ export default function DCOReferralSystem() {
   const [showCreateReferral, setShowCreateReferral] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [selectedReferral, setSelectedReferral] = useState<any>(null);
+  const [customReminderMessage, setCustomReminderMessage] = useState("");
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000"; // fallback for local dev
 const REFERRAL_ID = "848756347876"; // dynamically set this if needed
+
+
+const { data: referralData, isLoading: isLeadsLoading } = useGetLeadsQuery();
+
+console.log(referralData?.leads);
+const link = `${BASE_URL}/referral/${REFERRAL_ID}`;
 
 const rawMessage = `
 Looking to buy or lease a car?
@@ -167,7 +175,7 @@ I know a dealership that can help. They offer:
 
 Let me know if you're interested. I’ll send you the details. We both get benefits through their referral program.
 
-${BASE_URL}/referral/${REFERRAL_ID}
+${link}
 `;
 
   const referralMessage = encodeURIComponent(rawMessage);
@@ -183,12 +191,12 @@ ${BASE_URL}/referral/${REFERRAL_ID}
   };
 
   const stats = {
-    totalReferrals: referralData.length,
-    activeReferrals: referralData.filter((r) => r.status !== "EMI Complete")
+    totalReferrals: referralData?.leads?.length,
+    activeReferrals: referralData?.leads?.filter((r) => r.referralStatus !== "EMI Complete")
       .length,
-    totalEarnings: referralData.reduce((sum, r) => sum + r.totalEarned, 0),
-    pendingPayouts: referralData.filter(
-      (r) => r.payout2 === 0 && r.status === "Delivered"
+    totalEarnings: referralData?.leads?.reduce((sum, r) => sum + Number(r.referralStatus), 0),
+    pendingPayouts: referralData?.leads?.filter(
+      (r) => r.referralStatus === "EMI Complete"
     ).length,
     conversionRate: 76.5,
     avgEarningsPerReferral: 4167,
@@ -196,25 +204,25 @@ ${BASE_URL}/referral/${REFERRAL_ID}
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "EMI Complete":
+      case "CONVERTED_TO_CUSTOMER":
         return (
           <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
             <CheckCircle2 className="w-3 h-3 mr-1" />
-            EMI Complete
+           Successfully
           </Badge>
         );
-      case "Delivered":
+      case "INPROGRESS":
         return (
           <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
             <Car className="w-3 h-3 mr-1" />
-            Delivered
+            In Progress
           </Badge>
         );
-      case "Processing":
+      case "REJECTED":
         return (
-          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-            <Clock className="w-3 h-3 mr-1" />
-            Processing
+          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
+            <AlertTriangle className="w-3 h-3 mr-1" />
+            Rejected
           </Badge>
         );
       default:
@@ -234,10 +242,9 @@ ${BASE_URL}/referral/${REFERRAL_ID}
     });
   };
 
-  const shareReferral = (platform: string, referralCode: string) => {
-    const baseUrl = "https://referral.company.com";
-    const referralLink = `${baseUrl}/ref/${referralCode}`;
-    const message = `🚛 Get your commercial vehicle with special benefits! Use my referral code: ${referralCode} or click: ${referralLink}`;
+  const shareReferral = (platform: string, referralCode: string, messageData: string) => {
+    const referralLink = `${BASE_URL}/referral/${referralCode}`;
+    const message = `${messageData} ! Use my referral code: ${referralCode} or click: ${referralLink}`;
 
     switch (platform) {
       case "whatsapp":
@@ -260,15 +267,15 @@ ${BASE_URL}/referral/${REFERRAL_ID}
     }
   };
 
-  const filteredReferrals = referralData.filter((referral) => {
+  const filteredReferrals = referralData?.leads?.filter((referral) => {
     const matchesSearch =
-      referral.referrerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      referral.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      referral.referralCode.toLowerCase().includes(searchTerm.toLowerCase());
+      referral.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      referral.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      referral.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || referral.status === statusFilter;
+      statusFilter === "all" || referral.referralStatus === statusFilter;
     const matchesType =
-      typeFilter === "all" || referral.referrerType === typeFilter;
+      typeFilter === "all" || referral.source === typeFilter;
 
     return matchesSearch && matchesStatus && matchesType;
   });
@@ -350,7 +357,7 @@ ${BASE_URL}/referral/${REFERRAL_ID}
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">
-                  ₹{stats.totalEarnings.toLocaleString()}
+                  ₹{stats.totalEarnings?.toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Lifetime earnings
@@ -432,7 +439,7 @@ ${BASE_URL}/referral/${REFERRAL_ID}
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {referralData.slice(0, 3).map((referral) => (
+                    {referralData?.leads?.slice(0, 3).map((referral) => (
                       <div
                         key={referral.id}
                         className="flex items-center justify-between p-4 border rounded-lg"
@@ -443,18 +450,18 @@ ${BASE_URL}/referral/${REFERRAL_ID}
                           </div>
                           <div>
                             <p className="font-medium">
-                              {referral.customerName}
+                              {referral.name}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              Referred by {referral.referrerName} •{" "}
-                              {referral.vehicleModel}
+                              Referred by {referral.source} •{" "}
+                              {referral.source}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          {getStatusBadge(referral.status)}
+                          {getStatusBadge(referral.referralStatus)}
                           <p className="text-sm text-muted-foreground mt-1">
-                            ₹{referral.totalEarned} earned
+                            ₹{referral.referralStatus} earned
                           </p>
                         </div>
                       </div>
@@ -519,7 +526,7 @@ ${BASE_URL}/referral/${REFERRAL_ID}
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    All Referrals ({filteredReferrals.length})
+                    All Referrals ({filteredReferrals?.length})
                   </CardTitle>
                   <CardDescription>
                     Track your referrals and earnings
@@ -529,87 +536,28 @@ ${BASE_URL}/referral/${REFERRAL_ID}
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Referral Code</TableHead>
+                        {/* <TableHead>Referral Code</TableHead> */}
                         <TableHead>Customer</TableHead>
-                        <TableHead>Vehicle</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>EMI Status</TableHead>
-                        <TableHead>Payout 1</TableHead>
-                        <TableHead>Payout 2</TableHead>
-                        <TableHead>Total Earned</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredReferrals.map((referral) => (
+                      {filteredReferrals?.map((referral) => (
                         <TableRow key={referral.id}>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <code className="bg-gray-100 px-2 py-1 rounded text-sm">
-                                {referral.referralCode}
-                              </code>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() =>
-                                  copyToClipboard(referral.referralCode)
-                                }
-                              >
-                                <Copy className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          </TableCell>
+                         
                           <TableCell>
                             <div>
                               <p className="font-medium">
-                                {referral.customerName}
+                                {referral.name}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {referral.customerPhone}
+                                {referral.phone}
                               </p>
                             </div>
                           </TableCell>
-                          <TableCell>{referral.vehicleModel}</TableCell>
                           <TableCell>
-                            {getStatusBadge(referral.status)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              variant={
-                                referral.emiStatus === "3/3 Paid"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                            >
-                              {referral.emiStatus}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              className={
-                                referral.payout1 > 0
-                                  ? "text-green-600 font-medium"
-                                  : "text-gray-400"
-                              }
-                            >
-                              ₹{referral.payout1}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <span
-                              className={
-                                referral.payout2 > 0
-                                  ? "text-green-600 font-medium"
-                                  : "text-gray-400"
-                              }
-                            >
-                              ₹{referral.payout2}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <span className="font-medium text-green-600">
-                              ₹{referral.totalEarned}
-                            </span>
+                            {getStatusBadge(referral.referralStatus)}
                           </TableCell>
                           <TableCell>
                             <Button
@@ -814,9 +762,9 @@ ${BASE_URL}/referral/${REFERRAL_ID}
         <Dialog open={showCreateReferral} onOpenChange={setShowCreateReferral}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Refer a Customer</DialogTitle>
+              <DialogTitle>Remind Customer</DialogTitle>
               <DialogDescription>
-                Share your referral code across different platforms to refer a customer
+                Remind your customer to complete the referral process
               </DialogDescription>
             </DialogHeader>
             <div className="flex space-x-2 mt-4">
@@ -864,20 +812,22 @@ ${BASE_URL}/referral/${REFERRAL_ID}
             {selectedReferral && (
               <div className="space-y-4">
                 <div className="p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-muted-foreground">Referral Code</p>
                   <div className="flex items-center justify-between">
-                    <code className="text-lg font-mono">
-                      {selectedReferral.referralCode}
-                    </code>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        copyToClipboard(selectedReferral.referralCode)
-                      }
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
+                    <div className="flex-1">
+                     
+                      <div className="mt-3">
+                      
+                        <textarea
+                          className="w-full border rounded px-2 py-1 text-sm"
+                          placeholder="Type your custom message to remind the referee"
+                          rows={6}
+                          cols={30}
+                          value={customReminderMessage}
+                          onChange={e => setCustomReminderMessage(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
@@ -885,7 +835,7 @@ ${BASE_URL}/referral/${REFERRAL_ID}
                     variant="outline"
                     className="flex flex-col items-center p-4 h-auto bg-transparent"
                     onClick={() =>
-                      shareReferral("whatsapp", selectedReferral.referralCode)
+                      shareReferral("whatsapp", REFERRAL_ID, customReminderMessage)
                     }
                   >
                     <MessageCircle className="w-6 h-6 mb-2 text-green-600" />
@@ -895,7 +845,7 @@ ${BASE_URL}/referral/${REFERRAL_ID}
                     variant="outline"
                     className="flex flex-col items-center p-4 h-auto bg-transparent"
                     onClick={() =>
-                      shareReferral("driver-app", selectedReferral.referralCode)
+                      shareReferral("driver-app", REFERRAL_ID, customReminderMessage)
                     }
                   >
                     <Smartphone className="w-6 h-6 mb-2 text-blue-600" />
@@ -905,7 +855,7 @@ ${BASE_URL}/referral/${REFERRAL_ID}
                     variant="outline"
                     className="flex flex-col items-center p-4 h-auto bg-transparent"
                     onClick={() =>
-                      shareReferral("meta", selectedReferral.referralCode)
+                      shareReferral("meta", REFERRAL_ID, customReminderMessage)
                     }
                   >
                     <Globe className="w-6 h-6 mb-2 text-purple-600" />

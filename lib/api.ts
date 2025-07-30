@@ -81,15 +81,26 @@ export interface FraudAlert {
 }
 
 export interface Lead {
-  id: string;
+  id: number;
   name: string;
   phone: string;
   email: string;
   address: string;
+  created_by: number;
+  created_at: string;
+  updated_by: number | null;
+  updated_at: string | null;
   source: string;
-  referralCode: string;
-  campaign_id?: string;
-  createdDate: string;
+  referred_by: number | null;
+  campaign_id: number | null;
+  isActive: boolean;
+  referralStatus: string;
+}
+export interface Leads {
+  leads: Lead[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 export interface CreateLeadRequest {
@@ -251,6 +262,10 @@ export const api = createApi({
       }),
       invalidatesTags: ['Lead'],
     }),
+    getLeads: builder.query<Leads, void>({
+      query: () => '/leads/all',
+      providesTags: ['Lead'],
+    }),
   }),
 });
 
@@ -273,4 +288,5 @@ export const {
   useGetDashboardStatsQuery,
   useGetAdminStatsQuery,
   useCreateLeadMutation,
+  useGetLeadsQuery,
 } = api; 

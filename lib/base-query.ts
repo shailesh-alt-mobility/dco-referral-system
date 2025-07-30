@@ -36,9 +36,9 @@ export const customBaseQuery: BaseQueryFn = async (args, api, extraOptions) => {
       // Get token from localStorage
       if (typeof window !== 'undefined') {
         const user = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
         if (user) {
-          const userData = JSON.parse(user);
-          headers.set('authorization', `Bearer ${userData.token || ''}`);
+          headers.set('authorization', `Bearer ${token || ''}`);
         }
       }
       return headers;
