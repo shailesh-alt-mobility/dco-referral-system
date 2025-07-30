@@ -47,78 +47,21 @@ import {
   Clock,
   CheckCircle2,
   AlertTriangle,
-  Eye,
   Plus,
   Search,
-  Download,
+
   MessageCircle,
   Smartphone,
   Globe,
   Shield,
-  QrCode,
+
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
   useGetAnalyticsQuery,
   useGetCustomerLeadsQuery,
-  useGetLeadsQuery,
 } from "@/lib/api";
-
-// Mock data
-// const referralData?.leads = [
-//   {
-//     id: "REF-DCO-001",
-//     referrerType: "DCO",
-//     referrerName: "Rajesh Kumar",
-//     referrerId: "DCO-MH-001",
-//     referralCode: "RAJESH-MH-001",
-//     customerName: "Amit Sharma",
-//     customerPhone: "+91-9876543210",
-//     vehicleModel: "Tata Ace Gold",
-//     status: "Delivered",
-//     deliveryDate: "2024-01-15",
-//     emiStatus: "2/3 Paid",
-//     payout1: 5000,
-//     payout2: 0,
-//     totalEarned: 5000,
-//     createdDate: "2024-01-10",
-//   },
-//   {
-//     id: "REF-B2C-002",
-//     referrerType: "B2C",
-//     referrerName: "Priya Patel",
-//     referrerId: "B2C-GJ-002",
-//     referralCode: "PRIYA-GJ-002",
-//     customerName: "Suresh Modi",
-//     customerPhone: "+91-9876543211",
-//     vehicleModel: "Mahindra Bolero Pickup",
-//     status: "EMI Complete",
-//     deliveryDate: "2023-12-20",
-//     emiStatus: "3/3 Paid",
-//     payout1: 5000,
-//     payout2: 2500,
-//     totalEarned: 7500,
-//     createdDate: "2023-12-15",
-//   },
-//   {
-//     id: "REF-DCO-003",
-//     referrerType: "DCO",
-//     referrerName: "Vikram Singh",
-//     referrerId: "DCO-UP-003",
-//     referralCode: "VIKRAM-UP-003",
-//     customerName: "Rahul Gupta",
-//     customerPhone: "+91-9876543212",
-//     vehicleModel: "Ashok Leyland Dost",
-//     status: "Processing",
-//     deliveryDate: null,
-//     emiStatus: "Pending",
-//     payout1: 0,
-//     payout2: 0,
-//     totalEarned: 0,
-//     createdDate: "2024-01-20",
-//   },
-// ];
-
+import Header from "@/components/Header";
 
 
 
@@ -278,35 +221,7 @@ ${link}
     <ProtectedRoute requiredRole="CUSTOMER">
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
-              <div className="flex items-center">
-                <Users className="h-8 w-8 text-blue-600 mr-3" />
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    Customer Dashboard
-                  </h1>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <span className="text-capitalize">Welcome, {user?.name}</span>
-                </div>
-                <Button
-                  onClick={() => setShowCreateReferral(true)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Refer a Customer
-                </Button>
-                <Button variant="outline" onClick={logout}>
-                  Logout
-                </Button>
-              </div>
-            </div>
-          </div>
-        </header>
+       <Header isReferralPage={true} user={user} logout={logout} setShowCreateReferral={setShowCreateReferral} />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Cards */}
@@ -706,9 +621,9 @@ ${link}
         <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Share Referral</DialogTitle>
+              <DialogTitle>Remind Customer</DialogTitle>
               <DialogDescription>
-                Share your referral code across different platforms
+                Remind your customer to complete the referral process
               </DialogDescription>
             </DialogHeader>
             {selectedReferral && (
