@@ -59,7 +59,7 @@ import { useGetAnalyticsQuery, useGetCustomerLeadsQuery } from "@/lib/api";
 import Header from "@/components/Header";
 import AllReferrals from "@/pages/AllReferrals";
 import PayoutStructure from "@/pages/PayoutStructure";
-import { AbusePrevention } from "@/pages/AbusePrevention";
+import AbusePrevention from "@/pages/AbusePrevention";
 
 export default function DCOReferralSystem() {
   const { user, logout } = useAuth();
@@ -73,6 +73,7 @@ export default function DCOReferralSystem() {
   const [customReminderMessage, setCustomReminderMessage] = useState("");
 
   const [REFERRAL_ID, setREFERRAL_ID] = useState("");
+  const [platform, setPlatform] = useState("whatsapp");
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -99,22 +100,23 @@ I know a dealership that can help. They offer:
 
 Let me know if you're interested. I’ll send you the details. We both get benefits through their referral program.
 
-${link}
+${link}?source=${platform}
 `;
 
   const referralMessage = encodeURIComponent(rawMessage);
 
   const handleShareReferral = (platform: string) => {
+    setPlatform(platform);
     switch (platform) {
       case "whatsapp":
         window.open(
-          `https://wa.me/?text=${referralMessage}&source='whatsapp'`,
+          `https://wa.me/?text=${referralMessage}&source=${platform}`,
           "_blank"
         );
         break;
       case "meta":
         window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${referralMessage}&source='meta'`,
+          `https://www.facebook.com/sharer/sharer.php?u=${referralMessage}&source=${platform}`,
           "_blank"
         );
     }

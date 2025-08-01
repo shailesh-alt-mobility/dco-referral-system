@@ -46,8 +46,8 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
     setReferralCode(referralCode);
 
     // Extract referredBy from search params
-    const referredByFromParams = searchParams.get("referredBy");
-    const sourceFromParams = searchParams.get("source");
+    const referredByFromParams = searchParams?.get("referredBy");
+    const sourceFromParams = searchParams?.get("source");
     if (referredByFromParams) {
       setReferredBy(referredByFromParams);
     }
@@ -190,7 +190,7 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
 
                 <div className="space-y-2">
                   <Label htmlFor="source">How did you hear about us?</Label>
-                  <Select value={source} onValueChange={setSource}>
+                  <Select value={source} onValueChange={(value) => setSource(value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select source" />
                     </SelectTrigger>
