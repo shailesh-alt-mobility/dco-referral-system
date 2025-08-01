@@ -47,8 +47,12 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
 
     // Extract referredBy from search params
     const referredByFromParams = searchParams.get("referredBy");
+    const sourceFromParams = searchParams.get("source");
     if (referredByFromParams) {
       setReferredBy(referredByFromParams);
+    }
+    if (sourceFromParams) {
+      setSource(sourceFromParams);
     }
   }, [referralCode, searchParams]);
 

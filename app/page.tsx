@@ -111,11 +111,11 @@ ${link}
   const handleShareReferral = (platform: string) => {
     switch (platform) {
       case "whatsapp":
-        window.open(`https://wa.me/?text=${referralMessage}`, "_blank");
+        window.open(`https://wa.me/?text=${referralMessage}&source='whatsapp'`, "_blank");
         break;
       case "meta":
         window.open(
-          `https://www.facebook.com/sharer/sharer.php?u=${referralMessage}`,
+          `https://www.facebook.com/sharer/sharer.php?u=${referralMessage}&source='meta'`,
           "_blank"
         );
     }
