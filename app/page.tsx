@@ -147,7 +147,7 @@ ${link}?source=${platform}
             Successfully
           </Badge>
         );
-      case "INPROGRESS":
+      case "IN_PROGRESS":
         return (
           <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
             <Car className="w-3 h-3 mr-1" />
@@ -456,9 +456,9 @@ ${link}?source=${platform}
         <Dialog open={showCreateReferral} onOpenChange={setShowCreateReferral}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Refer a Customer</DialogTitle>
+              <DialogTitle>Invite & Earn</DialogTitle>
               <DialogDescription>
-                Refer a customer to get rewards
+              Invite your friends or customers to join us! When they sign up using your referral link, you earn exciting rewards. Start sharing and start earning!
               </DialogDescription>
             </DialogHeader>
             <div className="flex space-x-2 mt-4">

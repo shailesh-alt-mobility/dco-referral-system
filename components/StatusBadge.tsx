@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react"
+import { CheckCircle2, AlertTriangle, XCircle, Car } from "lucide-react"
 
 interface StatusBadgeProps {
   status: string
@@ -28,6 +28,13 @@ export function StatusBadge({ status }: StatusBadgeProps) {
           Blocked
         </Badge>
       )
+      case "IN_PROGRESS":
+        return (
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+            <Car className="w-3 h-3 mr-1" />
+            In Progress
+          </Badge>
+        );
     default:
       return <Badge variant="secondary">{status}</Badge>
   }

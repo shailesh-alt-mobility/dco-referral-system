@@ -40,7 +40,7 @@ const AllReferrals = ({filteredReferrals, setSelectedReferral, setShowShareDialo
                 </div>
               </TableCell>
               <TableCell>
-                <StatusBadge status={referral.referralStatus === 'CONVERTED_TO_CUSTOMER' ? 'Success' : referral.referralStatus === 'EMI_Complete' ? 'EMI Complete' : referral.referralStatus}/>
+                <StatusBadge status={referral.referralStatus === 'CONVERTED_TO_CUSTOMER' ? 'Success' : referral.referralStatus === 'IN_PROGRESS' ? 'In Progress' : referral.referralStatus}/>
               </TableCell>
               {referral.referralStatus !== "CONVERTED_TO_CUSTOMER" && (
                 <TableCell>

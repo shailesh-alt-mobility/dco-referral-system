@@ -216,9 +216,6 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
                       className="pl-10 bg-gray-100 cursor-not-allowed"
                     />
                   </div>
-                  <p className="text-xs text-gray-500">
-                    This code was automatically extracted from the URL
-                  </p>
                 </div>
 
                 {referredBy && (
@@ -238,7 +235,7 @@ export function ReferralForm({ referralCode }: ReferralFormProps) {
                 )}
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Submitting..." : "Submit Referral"}
+                  {isLoading ? "Submitting..." : "Submit"}
                 </Button>
               </form>
             )}
