@@ -49,21 +49,17 @@ import {
   AlertTriangle,
   Plus,
   Search,
-
   MessageCircle,
   Smartphone,
   Globe,
   Shield,
-
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import {
-  useGetAnalyticsQuery,
-  useGetCustomerLeadsQuery,
-} from "@/lib/api";
+import { useGetAnalyticsQuery, useGetCustomerLeadsQuery } from "@/lib/api";
 import Header from "@/components/Header";
-
-
+import AllReferrals from "@/pages/AllReferrals";
+import PayoutStructure from "@/pages/PayoutStructure";
+import { AbusePrevention } from "@/pages/AbusePrevention";
 
 export default function DCOReferralSystem() {
   const { user, logout } = useAuth();
@@ -78,10 +74,10 @@ export default function DCOReferralSystem() {
 
   const [REFERRAL_ID, setREFERRAL_ID] = useState("");
 
-useEffect(()=>{
-  const userData = JSON.parse(localStorage.getItem("user") || "{}");
-  setREFERRAL_ID(userData?.Customer?.refer_code);
-},[]);
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    setREFERRAL_ID(userData?.Customer?.refer_code);
+  }, []);
 
   const { data: referralData, isLoading: isLeadsLoading } =
     useGetCustomerLeadsQuery();
@@ -111,7 +107,10 @@ ${link}
   const handleShareReferral = (platform: string) => {
     switch (platform) {
       case "whatsapp":
-        window.open(`https://wa.me/?text=${referralMessage}&source='whatsapp'`, "_blank");
+        window.open(
+          `https://wa.me/?text=${referralMessage}&source='whatsapp'`,
+          "_blank"
+        );
         break;
       case "meta":
         window.open(
@@ -221,7 +220,12 @@ ${link}
     <ProtectedRoute requiredRole="CUSTOMER">
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-       <Header isReferralPage={true} user={user} logout={logout} setShowCreateReferral={setShowCreateReferral} />
+        <Header
+          isReferralPage={true}
+          user={user}
+          logout={logout}
+          setShowCreateReferral={setShowCreateReferral}
+        />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats Cards */}
@@ -361,7 +365,14 @@ ${link}
                         <div className="text-right">
                           {getStatusBadge(referral.referralStatus)}
                           <p className="text-sm text-muted-foreground mt-1">
-                            ₹{referral?.rewards?.deliveryPayout || 5000} earned
+                            ₹{" "}
+                            {referral?.referralStatus === "EMI Complete"
+                              ? 2500
+                              : referral?.referralStatus ===
+                                "CONVERTED_TO_CUSTOMER"
+                              ? 5000
+                              : 0}{" "}
+                            earned
                           </p>
                         </div>
                       </div>
@@ -421,154 +432,19 @@ ${link}
                   </div>
                 </CardContent>
               </Card>
-
               {/* Referrals Table */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    All Referrals ({filteredReferrals?.length})
-                  </CardTitle>
-                  <CardDescription>
-                    Track your referrals and earnings
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        {/* <TableHead>Referral Code</TableHead> */}
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredReferrals?.map((referral) => (
-                        <TableRow key={referral.id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{referral.name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {referral.phone}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {getStatusBadge(referral.referralStatus)}
-                          </TableCell>
-                          {referral.referralStatus ===
-                            "CONVERTED_TO_CUSTOMER" && (
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedReferral(referral);
-                                  setShowShareDialog(true);
-                                }}
-                              >
-                                <Share2 className="w-4 h-4" />
-                              </Button>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+              <AllReferrals
+              filteredReferrals={filteredReferrals}
+              setSelectedReferral={setSelectedReferral}
+              setShowShareDialog={setShowShareDialog}
+            />
             </TabsContent>
-
-        
 
             <TabsContent value="analytics" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Payout Structure</CardTitle>
-                    <CardDescription>
-                      Current referral payout breakdown
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-                        <div className="flex items-center">
-                          <Car className="w-5 h-5 text-blue-600 mr-3" />
-                          <div>
-                            <p className="font-medium">Vehicle Delivery</p>
-                            <p className="text-sm text-muted-foreground">
-                              Paid upon successful delivery
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-blue-600">
-                            ₹5,000
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                        <div className="flex items-center">
-                          <CheckCircle2 className="w-5 h-5 text-green-600 mr-3" />
-                          <div>
-                            <p className="font-medium">3 Timely EMIs</p>
-                            <p className="text-sm text-muted-foreground">
-                              Paid after 3 consecutive EMIs
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-green-600">
-                            ₹2,500
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <PayoutStructure />
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Abuse Prevention</CardTitle>
-                    <CardDescription>
-                      Security measures in place
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <Shield className="w-5 h-5 text-green-600" />
-                        <div>
-                          <p className="font-medium">
-                            Self-Referral Prevention
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            System blocks self-referrals automatically
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Shield className="w-5 h-5 text-green-600" />
-                        <div>
-                          <p className="font-medium">Duplicate Number Check</p>
-                          <p className="text-sm text-muted-foreground">
-                            Prevents multiple referrals for same number
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <Shield className="w-5 h-5 text-green-600" />
-                        <div>
-                          <p className="font-medium">CRM Integration</p>
-                          <p className="text-sm text-muted-foreground">
-                            Real-time validation with customer database
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <AbusePrevention />
               </div>
             </TabsContent>
           </Tabs>
