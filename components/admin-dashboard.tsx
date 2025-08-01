@@ -4,7 +4,6 @@ import { Label } from "@/components/ui/label"
 import { useAuth } from "@/hooks/use-auth"
 
 import { useState } from "react"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,90 +16,16 @@ import {
   TrendingUp,
   AlertTriangle,
   CheckCircle2,
-  XCircle,
   Shield,
   Activity,
   BarChart3,
-  Settings,
-  Download,
-  MessageCircle,
-  Smartphone,
-  Globe,
 } from "lucide-react"
-import { useCustomerPayoutsMutation, useCustomerPayoutsQuery, useGetAnalyticsQuery, useGetLeadsQuery, useMoveLeadToCustomerMutation } from "@/lib/api"
+import { useCustomerPayoutsMutation, useGetAnalyticsQuery, useGetLeadsQuery, useMoveLeadToCustomerMutation } from "@/lib/api"
 import { toast } from "@/hooks/use-toast"
 import Header from "./Header"
-
-
-
-const payoutQueue = [
-  {
-    id: "PAY-001",
-    referrerId: "DCO-MH-001",
-    referrerName: "Rajesh Kumar",
-    amount: 5000,
-    type: "Delivery Payout",
-    customerId: "CUST-001",
-    customerName: "Amit Sharma",
-    dueDate: "2024-01-25",
-    status: "Pending Approval",
-  },
-  {
-    id: "PAY-002",
-    referrerId: "B2C-GJ-002",
-    referrerName: "Priya Patel",
-    amount: 2500,
-    type: "EMI Completion",
-    customerId: "CUST-002",
-    customerName: "Suresh Modi",
-    dueDate: "2024-01-26",
-    status: "Ready for Payment",
-  },
-]
-
-const fraudAlerts = [
-  {
-    id: "FRAUD-001",
-    type: "Self Referral Attempt",
-    referrerId: "DCO-UP-005",
-    referrerName: "Suspicious User",
-    details: "Attempted to refer using own phone number",
-    timestamp: "2024-01-24 14:30",
-    status: "Blocked",
-  },
-  {
-    id: "FRAUD-002",
-    type: "Duplicate Number",
-    referrerId: "B2C-MH-010",
-    referrerName: "Another User",
-    details: "Phone number already referred by another user",
-    timestamp: "2024-01-24 16:45",
-    status: "Blocked",
-  },
-]
-
-const campaigns = [
-  {
-    id: "CAMP-001",
-    name: "New Year Vehicle Campaign",
-    description: "Special referral campaign for commercial vehicles",
-    startDate: "2024-01-01",
-    endDate: "2024-03-31",
-    status: "Active",
-    referrals: 45,
-    conversions: 23,
-  },
-  {
-    id: "CAMP-002",
-    name: "Monsoon Special Offer",
-    description: "Referral campaign for monsoon season",
-    startDate: "2024-06-01",
-    endDate: "2024-09-30",
-    status: "Scheduled",
-    referrals: 0,
-    conversions: 0,
-  },
-];
+import PayoutQueue from "@/pages/PayoutQueue"
+import FraudDetectionAlerts from "@/pages/FraudDetectionAlerts"
+import Campaigns from "@/pages/Campaigns"
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth()
@@ -141,33 +66,6 @@ export default function AdminDashboard() {
     await customerPayouts({ cust_id: customerId, is3rdEmi: false });
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "Ready for Payment":
-        return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            <CheckCircle2 className="w-3 h-3 mr-1" />
-            Ready for Payment
-          </Badge>
-        )
-      case "Pending Approval":
-        return (
-          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-            <AlertTriangle className="w-3 h-3 mr-1" />
-            Pending Approval
-          </Badge>
-        )
-      case "Blocked":
-        return (
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">
-            <XCircle className="w-3 h-3 mr-1" />
-            Blocked
-          </Badge>
-        )
-      default:
-        return <Badge variant="secondary">{status}</Badge>
-    }
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -383,200 +281,16 @@ export default function AdminDashboard() {
             </Card>
           </TabsContent>
           <TabsContent value="payouts" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Payout Queue</CardTitle>
-                <CardDescription>Manage pending payouts and approvals</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Payout ID</TableHead>
-                      <TableHead>Referrer</TableHead>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Due Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {payoutQueue.map((payout) => (
-                      <TableRow key={payout.id}>
-                        <TableCell className="font-medium">{payout.id}</TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{payout.referrerName}</p>
-                            <p className="text-sm text-muted-foreground">{payout.referrerId}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{payout.customerName}</p>
-                            <p className="text-sm text-muted-foreground">{payout.customerId}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-medium text-green-600">₹{payout.amount.toLocaleString()}</span>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{payout.type}</Badge>
-                        </TableCell>
-                        <TableCell>{payout.dueDate}</TableCell>
-                        <TableCell>{getStatusBadge(payout.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button size="sm" variant="outline">
-                              Approve
-                            </Button>
-                            <Button size="sm" variant="outline">
-                              Reject
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+          <PayoutQueue/>
           </TabsContent>
 
           <TabsContent value="fraud" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Fraud Detection Alerts</CardTitle>
-                <CardDescription>Monitor and manage fraud prevention system</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Alert ID</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Referrer</TableHead>
-                      <TableHead>Details</TableHead>
-                      <TableHead>Timestamp</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {fraudAlerts.map((alert) => (
-                      <TableRow key={alert.id}>
-                        <TableCell className="font-medium">{alert.id}</TableCell>
-                        <TableCell>
-                          <Badge variant="destructive">{alert.type}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{alert.referrerName}</p>
-                            <p className="text-sm text-muted-foreground">{alert.referrerId}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="max-w-[200px]">
-                          <p className="text-sm truncate">{alert.details}</p>
-                        </TableCell>
-                        <TableCell>{alert.timestamp}</TableCell>
-                        <TableCell>{getStatusBadge(alert.status)}</TableCell>
-                        <TableCell>
-                          <Button size="sm" variant="outline">
-                            Review
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+          <FraudDetectionAlerts/>
           </TabsContent>
+
+
           <TabsContent value="campaigns" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Active Campaigns</CardTitle>
-                  <CardDescription>
-                    Manage and track referral campaigns
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {campaigns.map((campaign) => (
-                      <Card key={campaign.id}>
-                        <CardHeader>
-                          <div className="flex items-center justify-between">
-                            <CardTitle className="text-lg">
-                              {campaign.name}
-                            </CardTitle>
-                            <Badge
-                              variant={
-                                campaign.status === "Active"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                            >
-                              {campaign.status}
-                            </Badge>
-                          </div>
-                          <CardDescription>
-                            {campaign.description}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span>Duration:</span>
-                              <span>
-                                {campaign.startDate} to {campaign.endDate}
-                              </span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span>Referrals:</span>
-                              <span className="font-medium">
-                                {campaign.referrals}
-                              </span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span>Conversions:</span>
-                              <span className="font-medium text-green-600">
-                                {campaign.conversions}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex space-x-2 mt-4">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1 bg-transparent"
-                            >
-                              <MessageCircle className="w-4 h-4 mr-1" />
-                              WhatsApp
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1 bg-transparent"
-                            >
-                              <Smartphone className="w-4 h-4 mr-1" />
-                              Driver App
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1 bg-transparent"
-                            >
-                              <Globe className="w-4 h-4 mr-1" />
-                              Meta
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+           <Campaigns/>
             </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">

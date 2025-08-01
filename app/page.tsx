@@ -578,9 +578,9 @@ ${link}
         <Dialog open={showCreateReferral} onOpenChange={setShowCreateReferral}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Remind Customer</DialogTitle>
+              <DialogTitle>Refer a Customer</DialogTitle>
               <DialogDescription>
-                Remind your customer to complete the referral process
+                Refer a customer to get rewards
               </DialogDescription>
             </DialogHeader>
             <div className="flex space-x-2 mt-4">
