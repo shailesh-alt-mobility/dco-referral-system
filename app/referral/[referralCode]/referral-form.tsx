@@ -28,17 +28,18 @@ interface ReferralFormProps {
 }
 
 export function ReferralForm({ referralCode }: ReferralFormProps) {
+  const searchParams = useSearchParams();
+  const sourceFromParams = searchParams?.get("source") || "";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
-  const [source, setSource] = useState("");
+  const [source, setSource] = useState(sourceFromParams);
   const [referralCodeState, setReferralCode] = useState("");
   const [referredBy, setReferredBy] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const searchParams = useSearchParams();
   const [createLead, { isLoading }] = useCreateLeadMutation();
 
   useEffect(() => {
