@@ -1,3 +1,4 @@
+"use client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Car, CheckCircle2 } from 'lucide-react'
 import React from 'react'

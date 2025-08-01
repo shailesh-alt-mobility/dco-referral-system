@@ -1,3 +1,4 @@
+"use client"
 import { StatusBadge } from '@/components/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardTitle, CardHeader, CardDescription, CardContent } from '@/components/ui/card';
@@ -39,10 +40,9 @@ const AllReferrals = ({filteredReferrals, setSelectedReferral, setShowShareDialo
                 </div>
               </TableCell>
               <TableCell>
-                <StatusBadge status={referral.referralStatus}/>
+                <StatusBadge status={referral.referralStatus === 'CONVERTED_TO_CUSTOMER' ? 'Success' : referral.referralStatus === 'EMI_Complete' ? 'EMI Complete' : referral.referralStatus}/>
               </TableCell>
-              {referral.referralStatus ===
-                "CONVERTED_TO_CUSTOMER" && (
+              {referral.referralStatus !== "CONVERTED_TO_CUSTOMER" && (
                 <TableCell>
                   <Button
                     variant="ghost"

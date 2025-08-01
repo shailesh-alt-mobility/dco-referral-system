@@ -1,49 +1,34 @@
 import { fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import { mockApi } from './mock-api';
 
-// Custom base query that can use mock API for development
+// Custom base query that proxies all API calls through /api/proxy to avoid CORS
 export const customBaseQuery: BaseQueryFn = async (args, api, extraOptions) => {
-  // Use real API for auth endpoints, mock for others
-  const { url } = args as any;
-  
-  // Use real API for auth and leads endpoints
-  if (url === '/auth/login' || url === '/leads/add') {
-    return fetchBaseQuery({
-      baseUrl: process.env.NEXT_PUBLIC_API_BASE || 'https://34.47.217.149:3443',
-      prepareHeaders: (headers, { getState }) => {
-        // Get token from localStorage
-        if (typeof window !== 'undefined') {
-          const user = localStorage.getItem('user');
-          if (user) {
-            const userData = JSON.parse(user);
-            headers.set('authorization', `Bearer ${userData.token || ''}`);
-          }
-        }
-        return headers;
-      },
-    })(args, api, extraOptions);
+  let proxyUrl: string;
+  if (typeof args === 'string') {
+    proxyUrl = args.startsWith('/api/proxy') ? args : `/api/proxy${args}`;
+  } else if (args && typeof args.url === 'string') {
+    proxyUrl = args.url.startsWith('/api/proxy') ? args.url : `/api/proxy${args.url}`;
+  } else {
+    throw new Error('No URL provided to base query');
   }
-  
-  // Use mock API for other endpoints in development (except leads)
+
+  // Use mock API for development if needed
   if (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_API_BASE) {
     return mockBaseQuery(args, api, extraOptions);
   }
-  
-  // Use real API for other endpoints
+
   return fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_BASE || 'https://34.47.217.149:3443',
+    baseUrl: '',
     prepareHeaders: (headers, { getState }) => {
-      // Get token from localStorage
       if (typeof window !== 'undefined') {
-        const user = localStorage.getItem('user');
         const token = localStorage.getItem('token');
-        if (user) {
-          headers.set('authorization', `Bearer ${token || ''}`);
+        if (token) {
+          headers.set('authorization', `Bearer ${token}`);
         }
       }
       return headers;
     },
-  })(args, api, extraOptions);
+  })({ ...args, url: proxyUrl }, api, extraOptions);
 };
 
 // Mock base query for development
