@@ -8,7 +8,7 @@ import {
 import { Shield } from "lucide-react";
 import React from "react";
 
-export const AbusePrevention = () => {
+const AbusePrevention = () => {
   return (
     <Card>
       <CardHeader>
@@ -49,3 +49,5 @@ export const AbusePrevention = () => {
     </Card>
   );
 };
+
+export default AbusePrevention;
