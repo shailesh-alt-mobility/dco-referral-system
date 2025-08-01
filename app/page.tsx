@@ -243,7 +243,7 @@ ${link}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Active Referrals
+                  Successful Referrals
                 </CardTitle>
                 <Clock className="h-4 w-4 text-blue-600" />
               </CardHeader>
@@ -251,7 +251,6 @@ ${link}
                 <div className="text-2xl font-bold text-blue-600">
                   {analyticsData?.analytics?.activeReferrals}
                 </div>
-                <p className="text-xs text-muted-foreground">In progress</p>
               </CardContent>
             </Card>
 
@@ -362,7 +361,7 @@ ${link}
                         <div className="text-right">
                           {getStatusBadge(referral.referralStatus)}
                           <p className="text-sm text-muted-foreground mt-1">
-                            ₹{referral?.rewards?.deliveryPayout || 0} earned
+                            ₹{referral?.rewards?.deliveryPayout || 5000} earned
                           </p>
                         </div>
                       </div>
@@ -649,6 +648,7 @@ ${link}
                 <div className="grid grid-cols-3 gap-3">
                   <Button
                     variant="outline"
+                    disabled={customReminderMessage.length === 0}
                     className="flex flex-col items-center p-4 h-auto bg-transparent"
                     onClick={() =>
                       shareReferral(

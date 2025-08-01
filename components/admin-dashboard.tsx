@@ -186,19 +186,18 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold">{analyticsData?.analytics?.totalReferrals.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
                 <TrendingUp className="w-3 h-3 inline mr-1" />
-                +{analyticsData?.analytics?.totalReferralsChange}% from last month
+                +25% from last month
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Referrals</CardTitle>
+              <CardTitle className="text-sm font-medium">Successful Referrals</CardTitle>
               <Activity className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">{analyticsData?.analytics?.activeReferrals.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Currently processing</p>
             </CardContent>
           </Card>
 
@@ -254,7 +253,7 @@ export default function AdminDashboard() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="customers">Customers</TabsTrigger>
+            <TabsTrigger value="customers">Leads</TabsTrigger>
             <TabsTrigger value="payouts">Payouts</TabsTrigger>
             <TabsTrigger value="fraud">Fraud Detection</TabsTrigger>
             <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
@@ -275,7 +274,7 @@ export default function AdminDashboard() {
                         <CheckCircle2 className="w-5 h-5 text-green-600 mr-3" />
                         <div>
                           <p className="font-medium">New Referral Created</p>
-                          <p className="text-sm text-muted-foreground">DCO-MH-001 • 2 minutes ago</p>
+                          <p className="text-sm text-muted-foreground">DCO-MH-001 • 2 hr ago</p>
                         </div>
                       </div>
                     </div>
@@ -284,7 +283,7 @@ export default function AdminDashboard() {
                         <IndianRupee className="w-5 h-5 text-blue-600 mr-3" />
                         <div>
                           <p className="font-medium">Payout Processed</p>
-                          <p className="text-sm text-muted-foreground">₹5,000 • B2C-GJ-002 • 5 minutes ago</p>
+                          <p className="text-sm text-muted-foreground">₹5,000 • B2C-GJ-002 • 1 hr ago</p>
                         </div>
                       </div>
                     </div>
@@ -293,7 +292,7 @@ export default function AdminDashboard() {
                         <Shield className="w-5 h-5 text-red-600 mr-3" />
                         <div>
                           <p className="font-medium">Fraud Attempt Blocked</p>
-                          <p className="text-sm text-muted-foreground">Self-referral • 8 minutes ago</p>
+                          <p className="text-sm text-muted-foreground">Self-referral •  1.5 hr ago</p>
                         </div>
                       </div>
                     </div>
@@ -345,7 +344,7 @@ export default function AdminDashboard() {
           <TabsContent value="customers" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Customers</CardTitle>  
+                <CardTitle>Leads</CardTitle>  
               </CardHeader>
               <CardContent>
                 <Table>

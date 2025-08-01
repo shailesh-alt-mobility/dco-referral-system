@@ -21,8 +21,13 @@ const Header = ({
             <Users className="h-8 w-8 text-blue-600 mr-3" />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Customer Dashboard
+                {isReferralPage ? "Customer Dashboard" : "Admin Dashboard"}
               </h1>
+              {
+                !isReferralPage && (
+                  <p className="text-sm text-gray-500">Referral System Management & Monitoring</p>
+                )
+              }
             </div>
           </div>
           <div className="flex items-center space-x-4">
