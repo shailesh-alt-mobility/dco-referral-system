@@ -9,7 +9,10 @@ export function middleware(request: NextRequest) {
   const userRole = request.cookies.get('userRole')?.value
   
   // Public routes that don't require authentication
-  const publicRoutes = ['/login', '/referral']
+  const publicRoutes = ['/login']
+  
+  // Check if the current path is a referral page
+  const isReferralPage = pathname.startsWith('/referral/')
   
   // If trying to access a public route and already authenticated, redirect appropriately
   if (publicRoutes.includes(pathname) && isAuthenticated) {
@@ -21,7 +24,7 @@ export function middleware(request: NextRequest) {
   }
   
   // If trying to access protected routes without authentication, redirect to login
-  if (!publicRoutes.includes(pathname) && !isAuthenticated) {
+  if (!publicRoutes.includes(pathname) && !isReferralPage && !isAuthenticated) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
   

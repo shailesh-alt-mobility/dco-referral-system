@@ -3,6 +3,8 @@ import { Card, CardTitle, CardHeader, CardDescription, CardContent } from '@/com
 import { Table } from '@/components/ui/table'
 import React from 'react'
 import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/StatusBadge'
+import { Button } from '@/components/ui/button'
 
 const fraudAlerts = [
     {
