@@ -22,6 +22,8 @@ const campaigns = [
     status: "Active",
     referrals: 45,
     conversions: 23,
+    show: true
+
   },
   {
     id: "CAMP-002",
@@ -32,6 +34,7 @@ const campaigns = [
     status: "Scheduled",
     referrals: 0,
     conversions: 0,
+    show: false
   },
 ];
 const Campaigns = () => {
@@ -132,6 +135,7 @@ ${link}?source=${platform}
                     variant="outline"
                     className="flex-1 bg-transparent"
                     onClick={() => handleShareReferral("whatsapp", campaign)}
+                    disabled={!campaign.show}
                   >
                     <MessageCircle className="w-4 h-4 mr-1" />
                     WhatsApp
@@ -141,6 +145,7 @@ ${link}?source=${platform}
                     variant="outline"
                     className="flex-1 bg-transparent"
                     onClick={() => handleShareReferral("driver-app", campaign)}
+                    disabled={!campaign.show}
                   >
                     <Smartphone className="w-4 h-4 mr-1" />
                     Driver App
@@ -150,6 +155,7 @@ ${link}?source=${platform}
                     variant="outline"
                     className="flex-1 bg-transparent"
                     onClick={() => handleShareReferral("meta", campaign)}
+                    disabled={!campaign.show}
                   >
                     <Globe className="w-4 h-4 mr-1" />
                     Meta
