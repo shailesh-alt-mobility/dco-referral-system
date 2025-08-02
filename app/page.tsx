@@ -58,8 +58,7 @@ import { toast } from "@/hooks/use-toast";
 import { useGetAnalyticsQuery, useGetCustomerLeadsQuery } from "@/lib/api";
 import Header from "@/components/Header";
 import AllReferrals from "@/pages/AllReferrals";
-import PayoutStructure from "@/pages/PayoutStructure";
-import AbusePrevention from "@/pages/AbusePrevention";
+import Campaigns from "@/pages/Campaigns";
 
 export default function DCOReferralSystem() {
   const { user, logout } = useAuth();
@@ -105,7 +104,7 @@ ${link}?source=${platform}
 
   const referralMessage = encodeURIComponent(rawMessage);
 
-  const handleShareReferral = (platform: string) => {
+const handleShareReferral = (platform: string) => {
     setPlatform(platform);
     switch (platform) {
       case "whatsapp":
@@ -333,11 +332,10 @@ ${link}?source=${platform}
             onValueChange={setActiveTab}
             className="space-y-6"
           >
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
               <TabsTrigger value="referrals">My Referrals</TabsTrigger>
-              <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="campaigns">Current Campaigns</TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard" className="space-y-6">
@@ -441,14 +439,17 @@ ${link}?source=${platform}
               setShowShareDialog={setShowShareDialog}
             />
             </TabsContent>
+            <TabsContent value="campaigns" className="space-y-6">
+             <Campaigns/>
+            </TabsContent>
 
-            <TabsContent value="analytics" className="space-y-6">
+            {/* <TabsContent value="analytics" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <PayoutStructure />
 
                 <AbusePrevention />
               </div>
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
 
